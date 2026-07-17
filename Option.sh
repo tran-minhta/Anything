@@ -1,42 +1,47 @@
 #!/bin/bash
 set -e
 
-echo "🚀 Chào mừng đến với trình thiết lập hệ thống Talon!"
+echo "🚀 Trình cài đặt hệ thống Talon (Tuần tự & An toàn)"
 
-# --- MẢNG LỰA CHỌN ---
-options=("Cơ bản (Apt, Zsh, Common)" "Rust" "Golang" "Node.js" "Neovim (LazyVim)" "Tailscale" "Bắt đầu cài đặt")
-selected=()
+# 1. Menu lựa chọn
+echo "Chọn các gói muốn cài (nhập số, cách nhau bằng dấu cách, chọn '8' để cài tất cả):"
+echo "1) Cơ bản | 2) Rust | 3) Golang | 4) Node.js | 5) Neovim | 6) Tailscale | 7) UV | 8) TẤT CẢ"
+read -p "Lựa chọn của bạn (Enter để cài tất cả): " choices
 
-echo "Chọn các thành phần cần cài đặt (Gõ số tương ứng, chọn 'Bắt đầu cài đặt' để chạy):"
-PS3='Lựa chọn của bạn: '
+# Mặc định cài tất cả nếu người dùng chỉ nhấn Enter
+if [ -z "$choices" ]; then
+    choices="8"
+fi
 
-select opt in "${options[@]}"
-do
-    case $opt in
-        "Cơ bản (Apt, Zsh, Common)") selected+=("BASE") ;;
-        "Rust") selected+=("RUST") ;;
-        "Golang") selected+=("GO") ;;
-        "Node.js") selected+=("NODE") ;;
-        "Neovim (LazyVim)") selected+=("NVIM") ;;
-        "Tailscale") selected+=("TAILSCALE") ;;
-        "Bắt đầu cài đặt") break ;;
-        *) echo "Lựa chọn không hợp lệ!" ;;
-    esac
-done
-
-# --- HÀM CÀI ĐẶT ---
-# 1. CƠ BẢN
-if [[ " ${selected[@]} " =~ " BASE " ]]; then
-    echo "📦 Cài đặt gói cơ bản..."
-    sudo apt update && sudo apt install -y zsh tmux fzf bat eza stow curl git build-essential unzip wget
-    
-    # Tạo commonrc
-    touch ~/.commonrc
-    for rc in ~/.bashrc ~/.zshrc; do
-        if ! grep -q "source ~/.commonrc" "$rc"; then echo "[ -f ~/.commonrc ] && source ~/.commonrc" >> "$rc"; fi
+# 2. Xử lý lựa chọn vào hàng đợi (Queue)
+queue=()
+if [[ $choices == *"8"* ]]; then
+    queue=("BASE" "RUST" "GO" "NODE" "NVIM" "TAILSCALE" "UV")
+else
+    for i in $choices; do
+        case $i in
+            1) queue+=("BASE") ;;
+            2) queue+=("RUST") ;;
+            3) queue+=("GO") ;;
+            4) queue+=("NODE") ;;
+            5) queue+=("NVIM") ;;
+            6) queue+=("TAILSCALE") ;;
+            7) queue+=("UV") ;;
+        esac
     done
-    
-    cat << 'EOF' > ~/.commonrc
+fi
+
+# 3. Vòng lặp cài đặt tuần tự
+for task in "${queue[@]}"; do
+    echo "--- Đang cài đặt: $task ---"
+    case $task in
+        "BASE")
+            sudo apt update && sudo apt install -y zsh tmux fzf bat eza stow curl git build-essential unzip wget
+            touch ~/.commonrc
+            for rc in ~/.bashrc ~/.zshrc; do
+                if ! grep -q "source ~/.commonrc" "$rc"; then echo "[ -f ~/.commonrc ] && source ~/.commonrc" >> "$rc"; fi
+            done
+            cat << 'EOF' > ~/.commonrc
 alias cat='bat --paging=never'
 alias ls='eza --icons'
 alias ll='eza -lh --icons'
@@ -45,37 +50,34 @@ alias gs='git status'
 alias gp='git push'
 if [ -z "$SSH_AUTH_SOCK" ]; then eval $(ssh-agent -s) > /dev/null; ssh-add ~/.ssh/id_rsa 2>/dev/null; fi
 EOF
-fi
+            ;;
+        "RUST")
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+            grep -q ".cargo/bin" ~/.commonrc || echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.commonrc
+            ;;
+        "GO")
+            GO_VER=$(curl -s https://go.dev/VERSION?m=text | head -n 1)
+            wget -q "https://dl.google.com/go/${GO_VER}.linux-arm64.tar.gz" -O /tmp/go.tar.gz
+            sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf /tmp/go.tar.gz
+            grep -q "/usr/local/go/bin" ~/.commonrc || echo 'export PATH="$PATH:/usr/local/go/bin"' >> ~/.commonrc
+            ;;
+        "NODE")
+            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+            ;;
+        "NVIM")
+            wget -qO /tmp/nvim.tar.gz https://github.com/neovim/neovim/releases/latest/download/nvim-linux-arm64.tar.gz
+            sudo tar -C /opt -xzf /tmp/nvim.tar.gz && sudo ln -sf /opt/nvim-linux-arm64/bin/nvim /usr/local/bin/nvim
+            git clone https://github.com/LazyVim/starter ~/.config/nvim && rm -rf ~/.config/nvim/.git
+            ;;
+        "TAILSCALE")
+            curl -fsSL https://tailscale.com/install.sh | sh
+            ;;
+        "UV")
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+            ;;
+    esac
+    echo "✅ Đã xong: $task"
+    sleep 1
+done
 
-# 2. RUST
-if [[ " ${selected[@]} " =~ " RUST " ]]; then
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-    grep -q ".cargo/bin" ~/.commonrc || echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.commonrc
-fi
-
-# 3. GOLANG
-if [[ " ${selected[@]} " =~ " GO " ]]; then
-    GO_VER=$(curl -s https://go.dev/VERSION?m=text | head -n 1)
-    wget "https://dl.google.com/go/${GO_VER}.linux-arm64.tar.gz" -O /tmp/go.tar.gz
-    sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf /tmp/go.tar.gz
-    grep -q "/usr/local/go/bin" ~/.commonrc || echo 'export PATH="$PATH:/usr/local/go/bin"' >> ~/.commonrc
-fi
-
-# 4. NODE.JS
-if [[ " ${selected[@]} " =~ " NODE " ]]; then
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-fi
-
-# 5. NEOVIM
-if [[ " ${selected[@]} " =~ " NVIM " ]]; then
-    wget -qO /tmp/nvim.tar.gz https://github.com/neovim/neovim/releases/latest/download/nvim-linux-arm64.tar.gz
-    sudo tar -C /opt -xzf /tmp/nvim.tar.gz && sudo ln -sf /opt/nvim-linux-arm64/bin/nvim /usr/local/bin/nvim
-    git clone https://github.com/LazyVim/starter ~/.config/nvim && rm -rf ~/.config/nvim/.git
-fi
-
-# 6. TAILSCALE
-if [[ " ${selected[@]} " =~ " TAILSCALE " ]]; then
-    curl -fsSL https://tailscale.com/install.sh | sh
-fi
-
-echo "✅ Hoàn tất thiết lập! Hãy chạy 'exec zsh' để áp dụng các thay đổi."
+echo "🎉 Hoàn tất! Hãy chạy 'exec zsh' để áp dụng các thay đổi."

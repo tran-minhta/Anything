@@ -1,0 +1,18 @@
+alias cat='bat --paging=never'
+alias ls='eza --icons'
+alias ll='eza -lh --icons'
+alias gco='git checkout'
+alias gs='git status'
+alias gp='git push'
+if [ -z "$SSH_AUTH_SOCK" ]; then eval $(ssh-agent -s) > /dev/null; ssh-add ~/.ssh/id_rsa 2>/dev/null; fi
+export PATH="$HOME/.cargo/bin:$PATH"
+export PATH="$PATH:/usr/local/go/bin"
+# Biến môi trường để tiện sử dụng
+export VM_CONFIG='/mnt/internal/linux/vm_config.json'
+
+# Alias để mở file root bằng nano (với quyền sudo)
+alias vm='sudo nano $VM_CONFIG'
+
+# Alias để xem nhanh nội dung file root
+alias catvm='sudo bat $VM_CONFIG'
+

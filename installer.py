@@ -1,8 +1,8 @@
 import json
-import os
 import platform
 import subprocess
-import sys
+import threading
+import queue
 from pathlib import Path
 from typing import Callable, Optional
 
@@ -83,23 +83,23 @@ class Installer:
             pkg = self.get_package(pkg_id)
             if pkg is None:
                 if callback:
-                    callback(self._progress(i, total), f"[SKIP] Khong tim thay: {pkg_id}")
+                    callback(self._progress(i, total), f"[SKIP] Not found: {pkg_id}")
                 continue
 
             if callback:
-                callback(self._progress(i, total), f"[...] Dang cai dat: {pkg['name']}")
+                callback(self._progress(i, total), f"[...] Installing: {pkg['name']}")
 
             install_cmds = pkg.get("install", {})
             cmd = install_cmds.get(self.platform_key)
             if not cmd:
                 if callback:
-                    callback(self._progress(i, total), f"[SKIP] Khong ho tro nen {self.platform_key}: {pkg['name']}")
+                    callback(self._progress(i, total), f"[SKIP] Not supported on {self.platform_key}: {pkg['name']}")
                 continue
 
-            ok = self._run_cmd(cmd, callback, f"  Cai {pkg['name']}")
+            ok = self._run_cmd(cmd, callback, f"  {pkg['name']}")
             if not ok:
                 if callback:
-                    callback(self._progress(i, total), f"[FAIL] That bai: {pkg['name']}")
+                    callback(self._progress(i, total), f"[FAIL] Failed: {pkg['name']}")
                 continue
 
             post = pkg.get("post_install", {})
@@ -109,10 +109,10 @@ class Installer:
 
             success_count += 1
             if callback:
-                callback(self._progress(i, total), f"[OK] Da cai xong: {pkg['name']}")
+                callback(self._progress(i, total), f"[OK] Done: {pkg['name']}")
 
         if callback:
-            callback(100, f"Hoan tat! Da cai thanh cong {success_count}/{total} goi.")
+            callback(100, f"Finished! Installed {success_count}/{total} packages.")
 
         return success_count == total
 
@@ -121,8 +121,10 @@ class Installer:
         cmd: str,
         callback: Optional[Callable[[int, str], None]] = None,
         prefix: str = "",
+        timeout: int = 600,
     ) -> bool:
         shell = self.platform_key != "win32"
+        process = None
         try:
             process = subprocess.Popen(
                 cmd,
@@ -131,43 +133,67 @@ class Installer:
                 stderr=subprocess.STDOUT,
                 bufsize=0,
             )
-            buf = b""
-            while True:
-                chunk = process.stdout.read(1024)
-                if not chunk:
-                    break
-                buf += chunk
-                while b"\n" in buf or b"\r" in buf:
-                    idx_newline = buf.find(b"\n")
-                    idx_cr = buf.find(b"\r")
-                    if idx_newline == -1:
-                        idx = idx_cr
-                    elif idx_cr == -1:
-                        idx = idx_newline
-                    else:
-                        idx = min(idx_newline, idx_cr)
-                    line = buf[:idx].decode("utf-8", errors="replace").rstrip()
-                    if idx + 1 < len(buf):
-                        buf = buf[idx + 1:]
-                    else:
-                        buf = b""
-                    if line and callback:
-                        callback(-1, f"{prefix} | {line}")
 
-            if buf:
-                line = buf.decode("utf-8", errors="replace").rstrip()
-                if line and callback:
+            output_queue: queue.Queue = queue.Queue()
+
+            def _reader():
+                buf = b""
+                try:
+                    while True:
+                        chunk = process.stdout.read(4096)
+                        if not chunk:
+                            break
+                        buf += chunk
+                        while b"\n" in buf or b"\r" in buf:
+                            nl = buf.find(b"\n")
+                            cr = buf.find(b"\r")
+                            if nl == -1 and cr == -1:
+                                break
+                            candidates = [x for x in [nl, cr] if x != -1]
+                            idx = min(candidates)
+                            line = buf[:idx].decode("utf-8", errors="replace").rstrip()
+                            buf = buf[idx + 1:]
+                            if line:
+                                output_queue.put(line)
+                finally:
+                    if buf:
+                        line = buf.decode("utf-8", errors="replace").rstrip()
+                        if line:
+                            output_queue.put(line)
+                    output_queue.put(None)
+
+            reader_thread = threading.Thread(target=_reader, daemon=True)
+            reader_thread.start()
+
+            while True:
+                try:
+                    line = output_queue.get(timeout=timeout)
+                except queue.Empty:
+                    if callback:
+                        callback(-1, f"{prefix} | TIMEOUT: no output for {timeout}s, killing process")
+                    process.kill()
+                    process.wait()
+                    return False
+
+                if line is None:
+                    break
+                if callback:
                     callback(-1, f"{prefix} | {line}")
 
-            process.wait(timeout=600)
+            process.wait(timeout=30)
             return process.returncode == 0
+
         except subprocess.TimeoutExpired:
-            process.kill()
-            process.wait()
+            if process:
+                process.kill()
+                process.wait()
             if callback:
-                callback(-1, f"{prefix} | TIMEOUT (killed after 600s)")
+                callback(-1, f"{prefix} | TIMEOUT: process killed after {timeout}s")
             return False
         except Exception as e:
+            if process and process.poll() is None:
+                process.kill()
+                process.wait()
             if callback:
                 callback(-1, f"{prefix} | ERROR: {e}")
             return False

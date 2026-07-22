@@ -4,11 +4,11 @@ from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QTabWidget, QTreeWidget, QTreeWidgetItem, QPushButton, QLabel,
     QProgressBar, QTextEdit, QGroupBox, QLineEdit, QComboBox,
-    QMessageBox, QCheckBox, QScrollArea, QGridLayout, QSplitter,
-    QFrame, QSizePolicy, QInputDialog,
+    QMessageBox, QCheckBox, QScrollArea, QGridLayout, QFrame,
+    QInputDialog,
 )
 from PyQt6.QtCore import Qt, QThread, pyqtSignal
-from PyQt6.QtGui import QFont, QColor, QTextCursor
+from PyQt6.QtGui import QFont, QColor, QTextCursor, QCloseEvent
 
 from installer import Installer
 
@@ -643,6 +643,20 @@ class MainWindow(QMainWindow):
         self._reload_manage()
         self._load_packages()
 
+    def closeEvent(self, event: QCloseEvent):
+        if self.install_thread and self.install_thread.isRunning():
+            reply = QMessageBox.question(
+                self, "Confirm",
+                "An install is still running. Quit anyway?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            )
+            if reply != QMessageBox.StandardButton.Yes:
+                event.ignore()
+                return
+            self.install_thread.stop()
+            self.install_thread.wait(3000)
+        event.accept()
+
 
 def main():
     app = QApplication(sys.argv)
@@ -665,7 +679,7 @@ def main():
 
     window = MainWindow()
     window.show()
-    sys.exit(app.exec())
+    app.exec()
 
 
 if __name__ == "__main__":

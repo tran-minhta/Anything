@@ -6,6 +6,11 @@ echo "🚀 Bắt đầu quá trình thiết lập hệ thống..."
 APT_PACKAGES=(zsh tmux fzf bat eza stow curl git build-essential unzip wget apt-transport-https)
 sudo apt update && sudo apt install -y "${APT_PACKAGES[@]}"
 
+# Tạo symlink bat -> batcat (trên Ubuntu binary tên batcat)
+if command -v batcat &>/dev/null && ! command -v bat &>/dev/null; then
+    sudo ln -sf "$(which batcat)" /usr/local/bin/bat
+fi
+
 # 2. KHỞI TẠO ~/.commonrc (Làm sớm để các bước sau ghi vào)
 if [ ! -f ~/.commonrc ]; then
     touch ~/.commonrc
@@ -42,7 +47,7 @@ export PATH="$HOME/.cargo/bin:$PATH"
 export PATH="$PATH:/usr/local/go/bin"
 
 # Alias an toàn (bat --paging=never giúp tránh bị treo như cat cũ)
-alias cat='bat --paging=never'
+alias cat='batcat --paging=never'
 alias myenv='uv init . && uv venv'
 alias act='source ./.venv/bin/activate'
 alias deact='deactivate'

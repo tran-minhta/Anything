@@ -50,7 +50,7 @@ Nhập số, cách nhau bằng dấu cách. Ví dụ: `1 5 8` sẽ cài Cơ bả
 Được ghi vào `~/.commonrc`, dùng được trên cả bash lẫn zsh:
 
 ```bash
-alias cat='bat --paging=never'    # cat đẹp hơn
+alias cat='batcat --paging=never'    # cat đẹp hơn
 alias ls='eza --icons'            # ls có icon
 alias ll='eza -lh --icons'        # ls chi tiết
 alias gs='git status'

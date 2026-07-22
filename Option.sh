@@ -36,7 +36,7 @@ for task in "${queue[@]}"; do
             done
             # Chỉ ghi đè nếu file trống hoặc tạo mới
             cat << 'EOF' > ~/.commonrc
-alias cat='bat --paging=never'
+alias cat='batcat --paging=never'
 alias ls='eza --icons'
 alias ll='eza -lh --icons'
 alias gco='git checkout'

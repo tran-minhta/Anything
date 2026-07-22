@@ -7,7 +7,7 @@
         {
           "id": "base",
           "name": "Cơ bản",
-          "description": "zsh, tmux, fzf, bat, eza, git, curl, wget, build-essential",
+          "description": "zsh, tmux, fzf, bat, eza, git, curl, wget, build-essential procps",
           "install": {
             "linux": "sudo apt update && sudo apt install -y zsh tmux fzf bat eza stow curl git build-essential unzip wget apt-transport-https",
             "darwin": "brew install zsh tmux fzf bat eza stow curl git wget",
@@ -134,6 +134,28 @@
             "darwin": "command -v tailscale",
             "win32": "where tailscale"
           }
+        },
+        {
+          "id": "Homebrew",
+          "name": "Brew",
+          "description": "",
+          "install": {
+            "linux": "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+          },
+          "check": {
+            "linux": "echo 'eval \"$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)\"' >> ~/.profile\neval \"$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)\""
+          }
+        },
+        {
+          "id": "Bun",
+          "name": "Bun",
+          "description": "Bun",
+          "install": {
+            "linux": "curl -fsSL https://bun.com/install | bash"
+          },
+          "check": {
+            "linux": "bun --version"
+          }
         }
       ]
     },
@@ -180,6 +202,11 @@
           }
         }
       ]
+    },
+    {
+      "id": "brew",
+      "name": "brew",
+      "packages": []
     }
   ]
 }

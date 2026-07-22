@@ -13,12 +13,13 @@ chmod +x setup.sh
 
 Sau khi chạy xong, thực hiện `exec zsh` để áp dụng.
 
-## Hai chế độ
+## 3 chế độ sử dụng
 
 | File | Chức năng |
 |------|-----------|
 | `setup.sh` | Cài đặt **tất cả** tự động, không cần chọn |
-| `Option.sh` | **Lựa chọn** từng gói muốn cài |
+| `Option.sh` | **Lựa chọn** theo số thứ tự trong terminal |
+| `gui.py` | **GUI** với PyQt6, quản lý + cài đặt bằng giao diện đồ hoạ |
 
 ### Chế độ tuỳ chọn (Option.sh)
 
@@ -37,22 +38,41 @@ Sau khi chạy xong, thực hiện `exec zsh` để áp dụng.
 
 Nhập số, cách nhau bằng dấu cách. Ví dụ: `1 5 8` sẽ cài Cơ bản + Neovim + ZSH.
 
-## Chi tiết cài đặt
+### Chế độ GUI (gui.py)
+
+```bash
+pip install PyQt6
+python gui.py
+```
+
+**Tab Cai dat:** Chon package bang checkbox, bam nut "Cai dat da chon" de bat dau.
+
+**Tab Quan ly:**
+- Them package moi: bam "+ Them package", dien ten, lenh cai dat theo platform
+- Them category moi: bam "+ Them category"
+- Sua package: double-click vao package can sua
+- Xoa package: chon package, bam "Xoa"
+
+**Tab Log:** Xem output cai dat real-time.
+
+**packages.json:** File cau hinh danh sach package. Co the sua truc tiep bang text editor hoac qua GUI.
+
+## Chi tiet cai dat
 
 ### ZSH + Powerlevel10k
 
-- **zsh-autosuggestions** — Gợi ý lệnh khi bạn gõ (nhấn `→` để accept)
-- **zsh-syntax-highlighting** — Đổi màu chữ theo cú pháp lệnh (xanh = đúng, đỏ = sai)
-- **Powerlevel10k** — Theme prompt nhanh, đẹp, tuỳ biến được. Chạy `p10k configure` sau khi cài xong
+- **zsh-autosuggestions** — Goi y lenh khi ban go (nhan `→` de accept)
+- **zsh-syntax-highlighting** — Doi mau chu theo cu phap lenh (xanh = dung, do = sai)
+- **Powerlevel10k** — Theme prompt nhanh, dep, tu bien duoc. Chay `p10k configure` sau khi cai xong
 
-### Các alias có sẵn
+### Cac alias co san
 
-Được ghi vào `~/.commonrc`, dùng được trên cả bash lẫn zsh:
+Duoc ghi vao `~/.commonrc`, dung duoc tren ca bash lan zsh:
 
 ```bash
-alias cat='batcat --paging=never'    # cat đẹp hơn
-alias ls='eza --icons'            # ls có icon
-alias ll='eza -lh --icons'        # ls chi tiết
+alias cat='batcat --paging=never'    # cat dep hon
+alias ls='eza --icons'               # ls co icon
+alias ll='eza -lh --icons'           # ls chi tiet
 alias gs='git status'
 alias gp='git push'
 alias gco='git checkout'
@@ -62,15 +82,42 @@ alias act='source ./.venv/bin/activate'
 
 ### Docker
 
-Cài từ repository chính thức. Sau khi cài xong, user sẽ được thêm vào group `docker` để chạy không cần `sudo`. **Cần logout/login lại** để quyền có hiệu lực.
+Cai tu repository chinh thuc. Sau khi cai xong, user se duoc them vao group `docker` de khong can `sudo`. **Can logout/login lai** de quyen co hieu luc.
 
-## Cấu trúc
+## Cau truc
 
 ```
 Anything/
-├── setup.sh       # Cài tất cả
-├── Option.sh      # Chọn cài theo ý muốn
-├── .zshrc         # Cấu hình ZSH (oh-my-zsh + p10k + plugins)
-├── .commonrc      # Alias & env dùng chung bash/zsh
+├── setup.sh         # Cai tat ca (bash)
+├── Option.sh        # Chon cai theo y muon (bash)
+├── gui.py           # GUI PyQt6 (python gui.py)
+├── installer.py     # Backend cai dat
+├── packages.json    # Danh sach package (sua duoc)
+├── .zshrc           # Cau hinh ZSH (oh-my-zsh + p10k + plugins)
+├── .commonrc        # Alias & env dung chung bash/zsh
 └── README.md
 ```
+
+## Them/sua package
+
+Mo file `packages.json`, them block moi:
+
+```json
+{
+  "id": "mytool",
+  "name": "My Tool",
+  "description": "Mo ta cong cu",
+  "install": {
+    "linux": "sudo apt install -y mytool",
+    "darwin": "brew install mytool",
+    "win32": "winget install MyTool"
+  },
+  "check": {
+    "linux": "command -v mytool",
+    "darwin": "command -v mytool",
+    "win32": "where mytool"
+  }
+}
+```
+
+Them vao category phu hop trong `categories`, hoac them category moi.

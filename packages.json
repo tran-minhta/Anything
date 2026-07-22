@@ -1,0 +1,185 @@
+{
+  "categories": [
+    {
+      "id": "system",
+      "name": "Hệ thống",
+      "packages": [
+        {
+          "id": "base",
+          "name": "Cơ bản",
+          "description": "zsh, tmux, fzf, bat, eza, git, curl, wget, build-essential",
+          "install": {
+            "linux": "sudo apt update && sudo apt install -y zsh tmux fzf bat eza stow curl git build-essential unzip wget apt-transport-https",
+            "darwin": "brew install zsh tmux fzf bat eza stow curl git wget",
+            "win32": "winget install Git.Git --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v zsh && command -v git",
+            "darwin": "command -v zsh && command -v git",
+            "win32": "where git"
+          },
+          "post_install": {
+            "linux": "if command -v batcat &>/dev/null && ! command -v bat &>/dev/null; then sudo ln -sf \"$(which batcat)\" /usr/local/bin/bat; fi"
+          }
+        },
+        {
+          "id": "docker",
+          "name": "Docker",
+          "description": "Docker CE + Docker Compose",
+          "install": {
+            "linux": "sudo install -m 0755 -d /etc/apt/keyrings && sudo curl -fsSL https://download.docker.com/linux/$(. /etc/os-release && echo \"$ID\")/gpg -o /etc/apt/keyrings/docker.asc && sudo chmod a+r /etc/apt/keyrings/docker.asc && echo \"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/$(. /etc/os-release && echo \"$ID\") $(. /etc/os-release && echo \"$VERSION_CODENAME\") stable\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null && sudo apt update && sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin && sudo usermod -aG docker $USER",
+            "darwin": "brew install --cask docker",
+            "win32": "winget install Docker.DockerDesktop --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v docker",
+            "darwin": "command -v docker",
+            "win32": "where docker"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dev",
+      "name": "Development",
+      "packages": [
+        {
+          "id": "rust",
+          "name": "Rust",
+          "description": "rustup + cargo + rustc",
+          "install": {
+            "linux": "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y",
+            "darwin": "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y",
+            "win32": "winget install Rustlang.Rustup --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v cargo",
+            "darwin": "command -v cargo",
+            "win32": "where cargo"
+          },
+          "post_install": {
+            "linux": "grep -q '.cargo/bin' ~/.commonrc 2>/dev/null || echo 'export PATH=\"$HOME/.cargo/bin:$PATH\"' >> ~/.commonrc",
+            "darwin": "grep -q '.cargo/bin' ~/.commonrc 2>/dev/null || echo 'export PATH=\"$HOME/.cargo/bin:$PATH\"' >> ~/.commonrc"
+          }
+        },
+        {
+          "id": "go",
+          "name": "Golang",
+          "description": "Go mới nhất từ go.dev",
+          "install": {
+            "linux": "GO_VERSION=$(curl -s https://go.dev/VERSION?m=text | head -n 1) && wget -q \"https://dl.google.com/go/${GO_VERSION}.linux-amd64.tar.gz\" -O /tmp/go.tar.gz && sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf /tmp/go.tar.gz && rm /tmp/go.tar.gz",
+            "darwin": "brew install go",
+            "win32": "winget install GoLang.Go --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v go",
+            "darwin": "command -v go",
+            "win32": "where go"
+          },
+          "post_install": {
+            "linux": "grep -q '/usr/local/go/bin' ~/.commonrc 2>/dev/null || echo 'export PATH=\"$PATH:/usr/local/go/bin\"' >> ~/.commonrc"
+          }
+        },
+        {
+          "id": "node",
+          "name": "Node.js (NVM)",
+          "description": "Node Version Manager + Node.js",
+          "install": {
+            "linux": "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash",
+            "darwin": "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash",
+            "win32": "winget install OpenJS.NodeJS.LTS --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "[ -d \"$HOME/.nvm\" ]",
+            "darwin": "[ -d \"$HOME/.nvm\" ]",
+            "win32": "where node"
+          }
+        },
+        {
+          "id": "nvim",
+          "name": "Neovim + LazyVim",
+          "description": "Neovim mới nhất + LazyVim starter config",
+          "install": {
+            "linux": "wget -qO /tmp/nvim.tar.gz https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz && sudo tar -C /opt -xzf /tmp/nvim.tar.gz && sudo ln -sf /opt/nvim-linux64/bin/nvim /usr/local/bin/nvim && rm /tmp/nvim.tar.gz",
+            "darwin": "brew install neovim",
+            "win32": "winget install Neovim.Neovim --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v nvim",
+            "darwin": "command -v nvim",
+            "win32": "where nvim"
+          },
+          "post_install": {
+            "linux": "[ ! -d \"$HOME/.config/nvim\" ] && git clone https://github.com/LazyVim/starter ~/.config/nvim && rm -rf ~/.config/nvim/.git",
+            "darwin": "[ ! -d \"$HOME/.config/nvim\" ] && git clone https://github.com/LazyVim/starter ~/.config/nvim && rm -rf ~/.config/nvim/.git"
+          }
+        }
+      ]
+    },
+    {
+      "id": "network",
+      "name": "Mạng",
+      "packages": [
+        {
+          "id": "tailscale",
+          "name": "Tailscale",
+          "description": "VPN nội bộ peer-to-peer",
+          "install": {
+            "linux": "curl -fsSL https://tailscale.com/install.sh | sh",
+            "darwin": "brew install --cask tailscale",
+            "win32": "winget install Tailscale.Tailscale --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v tailscale",
+            "darwin": "command -v tailscale",
+            "win32": "where tailscale"
+          }
+        }
+      ]
+    },
+    {
+      "id": "python",
+      "name": "Python",
+      "packages": [
+        {
+          "id": "uv",
+          "name": "UV",
+          "description": "Python package installer siêu tốc (Astral)",
+          "install": {
+            "linux": "curl -LsSf https://astral.sh/uv/install.sh | sh",
+            "darwin": "curl -LsSf https://astral.sh/uv/install.sh | sh",
+            "win32": "powershell -ExecutionPolicy ByPass -c \"irm https://astral.sh/uv/install.ps1 | iex\""
+          },
+          "check": {
+            "linux": "command -v uv",
+            "darwin": "command -v uv",
+            "win32": "where uv"
+          }
+        }
+      ]
+    },
+    {
+      "id": "shell",
+      "name": "ZSH",
+      "packages": [
+        {
+          "id": "zsh_setup",
+          "name": "Oh My Zsh + Plugins + P10k",
+          "description": "Oh My Zsh, zsh-autosuggestions, zsh-syntax-highlighting, Powerlevel10k",
+          "install": {
+            "linux": "sh -c \"$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)\" \"\" --unattended",
+            "darwin": "sh -c \"$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)\" \"\" --unattended"
+          },
+          "check": {
+            "linux": "[ -d \"$HOME/.oh-my-zsh\" ]",
+            "darwin": "[ -d \"$HOME/.oh-my-zsh\" ]"
+          },
+          "post_install": {
+            "linux": "ZSH_CUSTOM=\"${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}\" && [ ! -d \"$ZSH_CUSTOM/plugins/zsh-autosuggestions\" ] && git clone https://github.com/zsh-users/zsh-autosuggestions \"$ZSH_CUSTOM/plugins/zsh-autosuggestions\" && [ ! -d \"$ZSH_CUSTOM/plugins/zsh-syntax-highlighting\" ] && git clone https://github.com/zsh-users/zsh-syntax-highlighting \"$ZSH_CUSTOM/plugins/zsh-syntax-highlighting\" && [ ! -d \"$ZSH_CUSTOM/themes/powerlevel10k\" ] && git clone --depth=1 https://github.com/romkatv/powerlevel10k \"$ZSH_CUSTOM/themes/powerlevel10k\" && sed -i 's/^ZSH_THEME=.*/ZSH_THEME=\"powerlevel10k\\/powerlevel10k\"/g' ~/.zshrc && sed -i 's/^plugins=.*/plugins=(git zsh-autosuggestions zsh-syntax-highlighting fzf)/g' ~/.zshrc",
+            "darwin": "ZSH_CUSTOM=\"${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}\" && [ ! -d \"$ZSH_CUSTOM/plugins/zsh-autosuggestions\" ] && git clone https://github.com/zsh-users/zsh-autosuggestions \"$ZSH_CUSTOM/plugins/zsh-autosuggestions\" && [ ! -d \"$ZSH_CUSTOM/plugins/zsh-syntax-highlighting\" ] && git clone https://github.com/zsh-users/zsh-syntax-highlighting \"$ZSH_CUSTOM/plugins/zsh-syntax-highlighting\" && [ ! -d \"$ZSH_CUSTOM/themes/powerlevel10k\" ] && git clone --depth=1 https://github.com/romkatv/powerlevel10k \"$ZSH_CUSTOM/themes/powerlevel10k\" && sed -i '' 's/^ZSH_THEME=.*/ZSH_THEME=\"powerlevel10k\\/powerlevel10k\"/g' ~/.zshrc && sed -i '' 's/^plugins=.*/plugins=(git zsh-autosuggestions zsh-syntax-highlighting fzf)/g' ~/.zshrc"
+          }
+        }
+      ]
+    }
+  ]
+}

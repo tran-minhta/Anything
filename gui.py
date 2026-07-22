@@ -1,13 +1,11 @@
 import sys
-import platform
-import subprocess
-from pathlib import Path
 
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QTabWidget, QTreeWidget, QTreeWidgetItem, QPushButton, QLabel,
     QProgressBar, QTextEdit, QGroupBox, QLineEdit, QComboBox,
-    QMessageBox, QCheckBox, QScrollArea, QGridLayout,
+    QMessageBox, QCheckBox, QScrollArea, QGridLayout, QSplitter,
+    QFrame, QSizePolicy, QInputDialog,
 )
 from PyQt6.QtCore import Qt, QThread, pyqtSignal
 from PyQt6.QtGui import QFont, QColor, QTextCursor
@@ -44,82 +42,121 @@ class ManagePackageDialog(QWidget):
         super().__init__(parent)
         self.installer = installer
         self.edit_pkg = edit_pkg
-        self.setWindowTitle("Packages edit" if edit_pkg else "Add packages")
-        self.setMinimumSize(500, 450)
+        self.setWindowTitle("Edit Package" if edit_pkg else "Add Package")
+        self.setMinimumSize(620, 520)
+        self.resize(620, 520)
         self._build_ui()
         if edit_pkg:
             self._fill_data()
 
     def _build_ui(self):
-        layout = QVBoxLayout(self)
+        root = QVBoxLayout(self)
+        root.setContentsMargins(16, 16, 16, 16)
+        root.setSpacing(12)
 
-        form = QGridLayout()
-        form.setSpacing(10)
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.Shape.NoFrame)
+        container = QWidget()
+        form = QGridLayout(container)
+        form.setContentsMargins(0, 0, 0, 0)
+        form.setSpacing(8)
 
-        form.addWidget(QLabel("Category:"), 0, 0)
+        form.addWidget(QLabel("Category:"), 0, 0, Qt.AlignmentFlag.AlignRight)
         self.combo_cat = QComboBox()
         for cat in self.installer.get_categories():
             self.combo_cat.addItem(cat["name"], cat["id"])
         form.addWidget(self.combo_cat, 0, 1)
 
-        form.addWidget(QLabel("ID:"), 1, 0)
+        form.addWidget(QLabel("ID:"), 1, 0, Qt.AlignmentFlag.AlignRight)
         self.input_id = QLineEdit()
         self.input_id.setPlaceholderText("e.g. rust, docker, tailscale...")
         form.addWidget(self.input_id, 1, 1)
 
-        form.addWidget(QLabel("Name:"), 2, 0)
+        form.addWidget(QLabel("Name:"), 2, 0, Qt.AlignmentFlag.AlignRight)
         self.input_name = QLineEdit()
         self.input_name.setPlaceholderText("Display name")
         form.addWidget(self.input_name, 2, 1)
 
-        form.addWidget(QLabel("Description:"), 3, 0)
+        form.addWidget(QLabel("Description:"), 3, 0, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignTop)
         self.input_desc = QLineEdit()
         self.input_desc.setPlaceholderText("Short description")
         form.addWidget(self.input_desc, 3, 1)
 
         grp_install = QGroupBox("Install command (per platform)")
-        grp_layout = QVBoxLayout()
+        grp_install.setStyleSheet("""
+            QGroupBox {
+                font-weight: bold;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                margin-top: 10px;
+                padding: 12px 8px 8px 8px;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 10px;
+                padding: 0 4px;
+            }
+        """)
+        grp_install_layout = QGridLayout(grp_install)
+        grp_install_layout.setSpacing(6)
         self.inputs_install = {}
-        for plat in ["linux", "darwin", "win32"]:
-            row = QHBoxLayout()
-            row.addWidget(QLabel(f"{plat}:"))
+        for row_idx, plat in enumerate(["linux", "darwin", "win32"]):
+            lbl = QLabel(f"{plat}:")
+            lbl.setFixedWidth(55)
+            grp_install_layout.addWidget(lbl, row_idx, 0)
             le = QLineEdit()
             le.setPlaceholderText(f"Install command for {plat}")
-            row.addWidget(le)
-            grp_layout.addLayout(row)
+            grp_install_layout.addWidget(le, row_idx, 1)
             self.inputs_install[plat] = le
-        grp_install.setLayout(grp_layout)
         form.addWidget(grp_install, 4, 0, 1, 2)
 
         grp_check = QGroupBox("Check command (per platform)")
-        grp_layout2 = QVBoxLayout()
+        grp_check.setStyleSheet(grp_install.styleSheet())
+        grp_check_layout = QGridLayout(grp_check)
+        grp_check_layout.setSpacing(6)
         self.inputs_check = {}
-        for plat in ["linux", "darwin", "win32"]:
-            row = QHBoxLayout()
-            row.addWidget(QLabel(f"{plat}:"))
+        for row_idx, plat in enumerate(["linux", "darwin", "win32"]):
+            lbl = QLabel(f"{plat}:")
+            lbl.setFixedWidth(55)
+            grp_check_layout.addWidget(lbl, row_idx, 0)
             le = QLineEdit()
             le.setPlaceholderText(f"Check command for {plat}")
-            row.addWidget(le)
-            grp_layout2.addLayout(row)
+            grp_check_layout.addWidget(le, row_idx, 1)
             self.inputs_check[plat] = le
-        grp_check.setLayout(grp_layout2)
         form.addWidget(grp_check, 5, 0, 1, 2)
 
-        layout.addLayout(form)
+        scroll.setWidget(container)
+        root.addWidget(scroll, 1)
 
         btn_row = QHBoxLayout()
-        btn_save = QPushButton("Save")
+        btn_row.addStretch()
+        btn_save = QPushButton("  Save  ")
+        btn_save.setMinimumWidth(100)
+        btn_save.setStyleSheet("""
+            QPushButton { background-color: #4CAF50; color: white; border: none;
+                          border-radius: 4px; padding: 8px 16px; font-weight: bold; }
+            QPushButton:hover { background-color: #45a049; }
+        """)
         btn_save.clicked.connect(self._save)
-        btn_cancel = QPushButton("Cancel")
-        btn_cancel.clicked.connect(self.close)
         btn_row.addWidget(btn_save)
+
+        btn_cancel = QPushButton("  Cancel  ")
+        btn_cancel.setMinimumWidth(100)
+        btn_cancel.setStyleSheet("""
+            QPushButton { background-color: #9e9e9e; color: white; border: none;
+                          border-radius: 4px; padding: 8px 16px; }
+            QPushButton:hover { background-color: #757575; }
+        """)
+        btn_cancel.clicked.connect(self.close)
         btn_row.addWidget(btn_cancel)
-        layout.addLayout(btn_row)
+        root.addLayout(btn_row)
 
     def _fill_data(self):
         pkg = self.edit_pkg
         self.input_id.setText(pkg.get("id", ""))
         self.input_id.setReadOnly(True)
+        self.input_id.setStyleSheet("background-color: #f0f0f0; color: #999;")
         self.input_name.setText(pkg.get("name", ""))
         self.input_desc.setText(pkg.get("description", ""))
         cat_id = pkg.get("category_id", "")
@@ -187,191 +224,224 @@ class MainWindow(QMainWindow):
 
     def _build_ui(self):
         self.setWindowTitle("Anything Setup Tool")
-        self.setMinimumSize(800, 600)
+        self.setMinimumSize(860, 640)
 
         central = QWidget()
         self.setCentralWidget(central)
         main_layout = QVBoxLayout(central)
-        main_layout.setContentsMargins(10, 10, 10, 10)
-        main_layout.setSpacing(10)
+        main_layout.setContentsMargins(12, 12, 12, 12)
+        main_layout.setSpacing(8)
 
         header = QLabel("Anything Setup Tool")
-        header.setFont(QFont("Sans Serif", 18, QFont.Weight.Bold))
+        header.setFont(QFont("Sans Serif", 20, QFont.Weight.Bold))
         header.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        header.setStyleSheet("color: #2196F3; padding: 10px;")
+        header.setStyleSheet("color: #1976D2; padding: 8px 0;")
+        header.setFixedHeight(48)
         main_layout.addWidget(header)
 
         self.tabs = QTabWidget()
-        main_layout.addWidget(self.tabs)
+        self.tabs.setFont(QFont("Sans Serif", 11))
+        main_layout.addWidget(self.tabs, 1)
 
         self.tab_install = self._build_install_tab()
         self.tab_manage = self._build_manage_tab()
         self.tab_log = self._build_log_tab()
 
-        self.tabs.addTab(self.tab_install, "  Apply  ")
-        self.tabs.addTab(self.tab_manage, "  Manager  ")
+        self.tabs.addTab(self.tab_install, "  Install  ")
+        self.tabs.addTab(self.tab_manage, "  Manage  ")
         self.tabs.addTab(self.tab_log, "  Log  ")
 
-        bottom = QHBoxLayout()
+        bottom_bar = QHBoxLayout()
+        bottom_bar.setSpacing(8)
 
         self.btn_install = QPushButton("  Install Selected  ")
         self.btn_install.setFont(QFont("Sans Serif", 11, QFont.Weight.Bold))
-        self.btn_install.setMinimumHeight(40)
+        self.btn_install.setFixedHeight(38)
+        self.btn_install.setMinimumWidth(180)
+        self.btn_install.setCursor(Qt.CursorShape.PointingHandCursor)
         self.btn_install.setStyleSheet("""
             QPushButton {
-                background-color: #4CAF50;
-                color: white;
-                border: none;
-                border-radius: 6px;
-                padding: 8px 20px;
+                background-color: #4CAF50; color: white; border: none;
+                border-radius: 6px; padding: 0 20px;
             }
-            QPushButton:hover { background-color: #45a049; }
-            QPushButton:pressed { background-color: #3d8b40; }
-            QPushButton:disabled { background-color: #ccc; color: #666; }
+            QPushButton:hover { background-color: #43A047; }
+            QPushButton:pressed { background-color: #388E3C; }
+            QPushButton:disabled { background-color: #BDBDBD; color: #757575; }
         """)
         self.btn_install.clicked.connect(self._start_install)
-        bottom.addWidget(self.btn_install)
+        bottom_bar.addWidget(self.btn_install)
 
         self.btn_select_all = QPushButton("Select All")
+        self.btn_select_all.setFixedHeight(38)
+        self.btn_select_all.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btn_select_all.setStyleSheet("""
+            QPushButton { border: 1px solid #ccc; border-radius: 4px; padding: 0 12px; }
+            QPushButton:hover { background-color: #e3f2fd; }
+        """)
         self.btn_select_all.clicked.connect(self._select_all)
-        bottom.addWidget(self.btn_select_all)
+        bottom_bar.addWidget(self.btn_select_all)
 
         self.btn_deselect_all = QPushButton("Deselect All")
+        self.btn_deselect_all.setFixedHeight(38)
+        self.btn_deselect_all.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btn_deselect_all.setStyleSheet(self.btn_select_all.styleSheet())
         self.btn_deselect_all.clicked.connect(self._deselect_all)
-        bottom.addWidget(self.btn_deselect_all)
+        bottom_bar.addWidget(self.btn_deselect_all)
 
-        main_layout.addLayout(bottom)
+        bottom_bar.addStretch()
+        main_layout.addLayout(bottom_bar)
 
+        progress_row = QHBoxLayout()
+        progress_row.setSpacing(8)
         self.progress_bar = QProgressBar()
-        self.progress_bar.setMinimumHeight(25)
+        self.progress_bar.setFixedHeight(22)
         self.progress_bar.setValue(0)
-        main_layout.addWidget(self.progress_bar)
+        self.progress_bar.setTextVisible(True)
+        self.progress_bar.setStyleSheet("""
+            QProgressBar { border: 1px solid #ccc; border-radius: 4px; text-align: center; }
+            QProgressBar::chunk { background-color: #4CAF50; border-radius: 3px; }
+        """)
+        progress_row.addWidget(self.progress_bar, 1)
 
         self.status_label = QLabel("Ready")
-        self.status_label.setStyleSheet("color: #666; padding: 2px;")
-        main_layout.addWidget(self.status_label)
+        self.status_label.setFixedHeight(22)
+        self.status_label.setStyleSheet("color: #666; padding: 2px 6px;")
+        progress_row.addWidget(self.status_label)
+        main_layout.addLayout(progress_row)
 
     def _build_install_tab(self):
         widget = QWidget()
         layout = QVBoxLayout(widget)
-        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setContentsMargins(4, 4, 4, 4)
+        layout.setSpacing(6)
 
-        info = QLabel(f"Platform: {self.installer.platform_key}  |  Total: {len(self.installer.get_all_packages())} packages")
-        info.setStyleSheet("color: #888; padding: 5px;")
-        layout.addWidget(info)
+        info_bar = QHBoxLayout()
+        info_label = QLabel(
+            f"Platform: {self.installer.platform_key}  |  "
+            f"Total: {len(self.installer.get_all_packages())} packages"
+        )
+        info_label.setStyleSheet("color: #888; padding: 2px;")
+        info_bar.addWidget(info_label)
+        info_bar.addStretch()
+        layout.addLayout(info_bar)
 
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.Shape.StyledPanel)
         scroll_content = QWidget()
         self.packages_layout = QVBoxLayout(scroll_content)
         self.packages_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.packages_layout.setSpacing(8)
         scroll.setWidget(scroll_content)
-        layout.addWidget(scroll)
+        layout.addWidget(scroll, 1)
 
         return widget
 
     def _build_manage_tab(self):
         widget = QWidget()
         layout = QVBoxLayout(widget)
-        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setContentsMargins(4, 4, 4, 4)
+        layout.setSpacing(8)
 
         btn_row = QHBoxLayout()
+        btn_row.setSpacing(6)
 
-        btn_add_pkg = QPushButton("  + Add package  ")
+        btn_add_pkg = QPushButton("+ Add Package")
+        btn_add_pkg.setFixedHeight(34)
         btn_add_pkg.setStyleSheet("""
-            QPushButton {
-                background-color: #2196F3;
-                color: white;
-                border: none;
-                border-radius: 4px;
-                padding: 6px 12px;
-            }
-            QPushButton:hover { background-color: #1976D2; }
+            QPushButton { background-color: #2196F3; color: white; border: none;
+                          border-radius: 4px; padding: 0 14px; font-weight: bold; }
+            QPushButton:hover { background-color: #1E88E5; }
         """)
         btn_add_pkg.clicked.connect(self._add_package)
         btn_row.addWidget(btn_add_pkg)
 
-        btn_add_cat = QPushButton("  + Add category  ")
+        btn_add_cat = QPushButton("+ Add Category")
+        btn_add_cat.setFixedHeight(34)
         btn_add_cat.setStyleSheet("""
-            QPushButton {
-                background-color: #9C27B0;
-                color: white;
-                border: none;
-                border-radius: 4px;
-                padding: 6px 12px;
-            }
-            QPushButton:hover { background-color: #7B1FA2; }
+            QPushButton { background-color: #9C27B0; color: white; border: none;
+                          border-radius: 4px; padding: 0 14px; }
+            QPushButton:hover { background-color: #AB47BC; }
         """)
         btn_add_cat.clicked.connect(self._add_category)
         btn_row.addWidget(btn_add_cat)
 
-        btn_edit = QPushButton("  Edit  ")
+        btn_edit = QPushButton("Edit")
+        btn_edit.setFixedHeight(34)
         btn_edit.setStyleSheet("""
-            QPushButton {
-                background-color: #FF9800;
-                color: white;
-                border: none;
-                border-radius: 4px;
-                padding: 6px 12px;
-            }
-            QPushButton:hover { background-color: #F57C00; }
+            QPushButton { background-color: #FF9800; color: white; border: none;
+                          border-radius: 4px; padding: 0 14px; }
+            QPushButton:hover { background-color: #FB8C00; }
         """)
         btn_edit.clicked.connect(self._edit_package)
         btn_row.addWidget(btn_edit)
 
-        btn_remove = QPushButton("  Delete  ")
+        btn_remove = QPushButton("Delete")
+        btn_remove.setFixedHeight(34)
         btn_remove.setStyleSheet("""
-            QPushButton {
-                background-color: #f44336;
-                color: white;
-                border: none;
-                border-radius: 4px;
-                padding: 6px 12px;
-            }
-            QPushButton:hover { background-color: #D32F2F; }
+            QPushButton { background-color: #f44336; color: white; border: none;
+                          border-radius: 4px; padding: 0 14px; }
+            QPushButton:hover { background-color: #E53935; }
         """)
         btn_remove.clicked.connect(self._remove_package)
         btn_row.addWidget(btn_remove)
 
-        btn_reload = QPushButton("  Reload  ")
+        btn_reload = QPushButton("Reload")
+        btn_reload.setFixedHeight(34)
+        btn_reload.setStyleSheet("""
+            QPushButton { border: 1px solid #ccc; border-radius: 4px; padding: 0 14px; }
+            QPushButton:hover { background-color: #f5f5f5; }
+        """)
         btn_reload.clicked.connect(self._reload_manage)
         btn_row.addWidget(btn_reload)
 
+        btn_row.addStretch()
         layout.addLayout(btn_row)
 
         self.manage_tree = QTreeWidget()
-        self.manage_tree.setHeaderLabels(["ID", "Name", "Info", "Category", "Exist"])
-        self.manage_tree.setColumnWidth(0, 120)
-        self.manage_tree.setColumnWidth(1, 150)
-        self.manage_tree.setColumnWidth(2, 250)
+        self.manage_tree.setHeaderLabels(["ID", "Name", "Description", "Category", "Installed"])
+        self.manage_tree.setColumnWidth(0, 110)
+        self.manage_tree.setColumnWidth(1, 140)
+        self.manage_tree.setColumnWidth(2, 260)
         self.manage_tree.setColumnWidth(3, 100)
+        self.manage_tree.setColumnWidth(4, 80)
         self.manage_tree.setAlternatingRowColors(True)
+        self.manage_tree.setRootIsDecorated(False)
         self.manage_tree.itemDoubleClicked.connect(self._edit_package)
-        layout.addWidget(self.manage_tree)
+        self.manage_tree.setStyleSheet("""
+            QTreeWidget { border: 1px solid #ddd; border-radius: 4px; }
+            QTreeWidget::item { padding: 4px 2px; }
+            QTreeWidget::item:selected { background-color: #bbdefb; color: black; }
+        """)
+        layout.addWidget(self.manage_tree, 1)
 
         self._reload_manage()
-
         return widget
 
     def _build_log_tab(self):
         widget = QWidget()
         layout = QVBoxLayout(widget)
-        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setContentsMargins(4, 4, 4, 4)
+        layout.setSpacing(6)
 
         self.log_text = QTextEdit()
         self.log_text.setReadOnly(True)
         self.log_text.setFont(QFont("Monospace", 10))
         self.log_text.setStyleSheet("""
             QTextEdit {
-                background-color: #1e1e1e;
-                color: #d4d4d4;
-                border: 1px solid #333;
-                padding: 8px;
+                background-color: #1e1e1e; color: #d4d4d4;
+                border: 1px solid #333; border-radius: 4px;
+                padding: 8px; selection-background-color: #264f78;
             }
         """)
-        layout.addWidget(self.log_text)
+        layout.addWidget(self.log_text, 1)
 
-        btn_clear = QPushButton("Clear log")
+        btn_clear = QPushButton("Clear Log")
+        btn_clear.setFixedHeight(32)
+        btn_clear.setStyleSheet("""
+            QPushButton { border: 1px solid #ccc; border-radius: 4px; padding: 0 12px; }
+            QPushButton:hover { background-color: #f5f5f5; }
+        """)
         btn_clear.clicked.connect(self.log_text.clear)
         layout.addWidget(btn_clear)
 
@@ -379,56 +449,70 @@ class MainWindow(QMainWindow):
 
     def _load_packages(self):
         for i in reversed(range(self.packages_layout.count())):
-            child = self.packages_layout.itemAt(i)
-            if child.widget():
-                child.widget().setParent(None)
+            item = self.packages_layout.itemAt(i)
+            if item and item.widget():
+                item.widget().setParent(None)
 
         self.checkboxes.clear()
 
         for cat in self.installer.get_categories():
-            cat_group = QGroupBox(f"  {cat['name']}  ")
+            cat_group = QGroupBox(cat["name"])
             cat_group.setFont(QFont("Sans Serif", 12, QFont.Weight.Bold))
             cat_group.setStyleSheet("""
                 QGroupBox {
+                    font-weight: bold;
                     border: 1px solid #ddd;
                     border-radius: 6px;
-                    margin-top: 12px;
-                    padding-top: 15px;
+                    margin-top: 14px;
+                    padding: 18px 10px 10px 10px;
                     background-color: #fafafa;
                 }
                 QGroupBox::title {
                     subcontrol-origin: margin;
-                    left: 12px;
+                    left: 14px;
                     padding: 0 6px;
+                    background-color: #fafafa;
                 }
             """)
             cat_layout = QVBoxLayout()
+            cat_layout.setSpacing(4)
 
             for pkg in cat.get("packages", []):
-                row = QHBoxLayout()
+                row = QFrame()
+                row.setStyleSheet("""
+                    QFrame { border: 1px solid #eee; border-radius: 4px;
+                             background-color: white; padding: 2px; }
+                    QFrame:hover { background-color: #f5f5f5; }
+                """)
+                row_layout = QHBoxLayout(row)
+                row_layout.setContentsMargins(8, 4, 8, 4)
+                row_layout.setSpacing(10)
+
                 cb = QCheckBox()
                 cb.setChecked(True)
                 cb.stateChanged.connect(self._update_status)
                 self.checkboxes[pkg["id"]] = cb
-                row.addWidget(cb)
+                row_layout.addWidget(cb)
 
                 name_label = QLabel(f"<b>{pkg['name']}</b>")
-                name_label.setMinimumWidth(150)
-                row.addWidget(name_label)
+                name_label.setFixedWidth(140)
+                row_layout.addWidget(name_label)
 
                 desc_label = QLabel(pkg.get("description", ""))
-                desc_label.setStyleSheet("color: #666;")
-                row.addWidget(desc_label)
+                desc_label.setStyleSheet("color: #555;")
+                desc_label.setWordWrap(False)
+                row_layout.addWidget(desc_label, 1)
 
                 installed = self.installer.is_installed(pkg["id"])
-                status = QLabel("  [Installed]  " if installed else "  [Not installed]  ")
-                status.setStyleSheet(
-                    "color: #4CAF50; font-weight: bold;" if installed
-                    else "color: #f44336;"
-                )
-                row.addWidget(status)
+                status_text = "[Installed]" if installed else "[Not installed]"
+                status_color = "#4CAF50" if installed else "#f44336"
+                status = QLabel(status_text)
+                status.setFixedWidth(110)
+                status.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+                status.setStyleSheet(f"color: {status_color}; font-weight: bold;")
+                row_layout.addWidget(status)
 
-                cat_layout.addLayout(row)
+                cat_layout.addWidget(row)
 
             cat_group.setLayout(cat_layout)
             self.packages_layout.addWidget(cat_group)
@@ -456,7 +540,7 @@ class MainWindow(QMainWindow):
 
         reply = QMessageBox.question(
             self, "Confirm",
-            f"Install {len(selected)} package(s): {', '.join(selected)}?",
+            f"Install {len(selected)} package(s):\n{', '.join(selected)}?",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
         )
         if reply != QMessageBox.StandardButton.Yes:
@@ -482,10 +566,10 @@ class MainWindow(QMainWindow):
         self.btn_install.setEnabled(True)
         if success:
             self.progress_bar.setValue(100)
-            self._log("[DONE] Success!")
-            self.status_label.setText("Success!")
+            self._log("[DONE] All packages installed successfully!")
+            self.status_label.setText("All installed!")
         else:
-            self._log("[DONE] Failed, check log.")
+            self._log("[DONE] Some packages failed, check log above.")
             self.status_label.setText("Failed - check log!")
         self._load_packages()
 
@@ -518,7 +602,6 @@ class MainWindow(QMainWindow):
         dlg.show()
 
     def _add_category(self):
-        from PyQt6.QtWidgets import QInputDialog
         name, ok = QInputDialog.getText(self, "Add Category", "Category name:")
         if ok and name.strip():
             cat_id = name.strip().lower().replace(" ", "_")
@@ -568,7 +651,17 @@ def main():
     palette = app.palette()
     palette.setColor(palette.ColorRole.Window, QColor("#ffffff"))
     palette.setColor(palette.ColorRole.WindowText, QColor("#333333"))
+    palette.setColor(palette.ColorRole.Base, QColor("#ffffff"))
+    palette.setColor(palette.ColorRole.AlternateBase, QColor("#f9f9f9"))
+    palette.setColor(palette.ColorRole.Text, QColor("#333333"))
+    palette.setColor(palette.ColorRole.Button, QColor("#f0f0f0"))
+    palette.setColor(palette.ColorRole.ButtonText, QColor("#333333"))
+    palette.setColor(palette.ColorRole.Highlight, QColor("#bbdefb"))
+    palette.setColor(palette.ColorRole.HighlightedText, QColor("#000000"))
     app.setPalette(palette)
+
+    font = QFont("Sans Serif", 10)
+    app.setFont(font)
 
     window = MainWindow()
     window.show()

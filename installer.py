@@ -121,7 +121,8 @@ class Installer:
         cmd: str,
         callback: Optional[Callable[[int, str], None]] = None,
         prefix: str = "",
-        timeout: int = 600,
+        timeout: int = 900,
+        heartbeat: int = 10,
     ) -> bool:
         shell = self.platform_key != "win32"
         process = None
@@ -154,31 +155,42 @@ class Installer:
                             line = buf[:idx].decode("utf-8", errors="replace").rstrip()
                             buf = buf[idx + 1:]
                             if line:
-                                output_queue.put(line)
+                                output_queue.put(("line", line))
                 finally:
                     if buf:
                         line = buf.decode("utf-8", errors="replace").rstrip()
                         if line:
-                            output_queue.put(line)
-                    output_queue.put(None)
+                            output_queue.put(("line", line))
+                    output_queue.put(("done", None))
 
             reader_thread = threading.Thread(target=_reader, daemon=True)
             reader_thread.start()
 
+            elapsed = 0
+            last_output_time = 0
+
             while True:
                 try:
-                    line = output_queue.get(timeout=timeout)
+                    msg_type, data = output_queue.get(timeout=heartbeat)
                 except queue.Empty:
+                    elapsed += heartbeat
+                    if elapsed >= timeout:
+                        if callback:
+                            callback(-1, f"{prefix} | TIMEOUT: no output for {timeout}s, killing...")
+                        process.kill()
+                        process.wait()
+                        return False
                     if callback:
-                        callback(-1, f"{prefix} | TIMEOUT: no output for {timeout}s, killing process")
-                    process.kill()
-                    process.wait()
-                    return False
+                        callback(-1, f"{prefix} | ... still running ({elapsed}s elapsed)")
+                    continue
 
-                if line is None:
+                if msg_type == "done":
                     break
-                if callback:
-                    callback(-1, f"{prefix} | {line}")
+
+                if msg_type == "line":
+                    elapsed = 0
+                    if callback:
+                        callback(-1, f"{prefix} | {data}")
 
             process.wait(timeout=30)
             return process.returncode == 0

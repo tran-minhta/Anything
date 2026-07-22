@@ -86,6 +86,12 @@ class Installer:
                     callback(self._progress(i, total), f"[SKIP] Not found: {pkg_id}")
                 continue
 
+            if self.is_installed(pkg_id):
+                success_count += 1
+                if callback:
+                    callback(self._progress(i, total), f"[SKIP] Already installed: {pkg['name']}")
+                continue
+
             if callback:
                 callback(self._progress(i, total), f"[...] Installing: {pkg['name']}")
 

@@ -4,21 +4,22 @@ set -e
 echo "🚀 Trình cài đặt hệ thống Talon (Tuần tự & Kiểm tra)"
 
 # 1. Menu lựa chọn
-echo "Chọn các gói muốn cài (nhập số, cách nhau bằng dấu cách, chọn '8' để cài tất cả):"
-echo "1) Cơ bản | 2) Rust | 3) Golang | 4) Node.js | 5) Neovim | 6) Tailscale | 7) UV | 8) TẤT CẢ"
+echo "Chọn các gói muốn cài (nhập số, cách nhau bằng dấu cách, chọn '0' để cài tất cả):"
+echo "1) Cơ bản | 2) Rust | 3) Golang | 4) Node.js | 5) Neovim | 6) Tailscale | 7) UV | 8) ZSH | 9) Docker | 0) TẤT CẢ"
 read -p "Lựa chọn của bạn (Enter để cài tất cả): " choices
 
-if [ -z "$choices" ]; then choices="8"; fi
+if [ -z "$choices" ]; then choices="0"; fi
 
 # 2. Hàng đợi
 queue=()
-if [[ $choices == *"8"* ]]; then
-    queue=("BASE" "RUST" "GO" "NODE" "NVIM" "TAILSCALE" "UV")
+if [[ $choices == *"0"* ]]; then
+    queue=("BASE" "RUST" "GO" "NODE" "NVIM" "TAILSCALE" "UV" "ZSH" "DOCKER")
 else
     for i in $choices; do
         case $i in
             1) queue+=("BASE") ;; 2) queue+=("RUST") ;; 3) queue+=("GO") ;;
             4) queue+=("NODE") ;; 5) queue+=("NVIM") ;; 6) queue+=("TAILSCALE") ;; 7) queue+=("UV") ;;
+            8) queue+=("ZSH") ;; 9) queue+=("DOCKER") ;;
         esac
     done
 fi
@@ -80,6 +81,37 @@ EOF
         "UV")
             if ! command -v uv &> /dev/null; then
                 curl -LsSf https://astral.sh/uv/install.sh | sh
+            fi
+            ;;
+        "ZSH")
+            if [ ! -d "$HOME/.oh-my-zsh" ]; then
+                sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+            fi
+            ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+            if [ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ]; then
+                git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_CUSTOM/plugins/zsh-autosuggestions"
+            fi
+            if [ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ]; then
+                git clone https://github.com/zsh-users/zsh-syntax-highlighting "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
+            fi
+            if [ ! -d "$ZSH_CUSTOM/themes/powerlevel10k" ]; then
+                git clone --depth=1 https://github.com/romkatv/powerlevel10k "$ZSH_CUSTOM/themes/powerlevel10k"
+            fi
+            sed -i 's/^ZSH_THEME=.*/ZSH_THEME="powerlevel10k\/powerlevel10k"/g' ~/.zshrc
+            sed -i 's/^plugins=.*/plugins=(git zsh-autosuggestions zsh-syntax-highlighting fzf)/g' ~/.zshrc
+            ;;
+        "DOCKER")
+            if ! command -v docker &> /dev/null; then
+                sudo install -m 0755 -d /etc/apt/keyrings
+                sudo curl -fsSL https://download.docker.com/linux/$(. /etc/os-release && echo "$ID")/gpg -o /etc/apt/keyrings/docker.asc
+                sudo chmod a+r /etc/apt/keyrings/docker.asc
+                echo \
+                  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/$(. /etc/os-release && echo "$ID") \
+                  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+                  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+                sudo apt update
+                sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+                sudo usermod -aG docker $USER
             fi
             ;;
     esac

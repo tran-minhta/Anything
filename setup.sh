@@ -80,12 +80,30 @@ if ! command -v docker >/dev/null; then
     # Cấp quyền cho user hiện tại chạy docker không cần sudo
     sudo usermod -aG docker $USER
 fi
-# 6. HOÀN TẤT ZSH
+# 6. ZSH, OH-MY-ZSH, PLUGINS & POWERLEVEL10K
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 fi
 
-# Cấu hình plugin
-sed -i 's/plugins=(git)/plugins=(git zsh-autosuggestions zsh-syntax-highlighting fzf)/g' ~/.zshrc
+ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+
+# Clone plugin zsh-autosuggestions (gợi ý code)
+if [ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ]; then
+    git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_CUSTOM/plugins/zsh-autosuggestions"
+fi
+
+# Clone plugin zsh-syntax-highlighting (đổi màu chữ theo cú pháp)
+if [ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ]; then
+    git clone https://github.com/zsh-users/zsh-syntax-highlighting "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
+fi
+
+# Clone theme Powerlevel10k
+if [ ! -d "$ZSH_CUSTOM/themes/powerlevel10k" ]; then
+    git clone --depth=1 https://github.com/romkatv/powerlevel10k "$ZSH_CUSTOM/themes/powerlevel10k"
+fi
+
+# Cấu hình theme và plugin trong .zshrc
+sed -i 's/^ZSH_THEME=.*/ZSH_THEME="powerlevel10k\/powerlevel10k"/g' ~/.zshrc
+sed -i 's/^plugins=.*/plugins=(git zsh-autosuggestions zsh-syntax-highlighting fzf)/g' ~/.zshrc
 
 echo "✅ Hoàn tất! Chạy 'exec zsh' để áp dụng cấu hình."

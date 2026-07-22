@@ -129,18 +129,47 @@ class Installer:
                 shell=shell,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
-                text=True,
-                bufsize=1,
+                bufsize=0,
             )
-            for line in process.stdout:
-                line = line.rstrip()
+            buf = b""
+            while True:
+                chunk = process.stdout.read(1024)
+                if not chunk:
+                    break
+                buf += chunk
+                while b"\n" in buf or b"\r" in buf:
+                    idx_newline = buf.find(b"\n")
+                    idx_cr = buf.find(b"\r")
+                    if idx_newline == -1:
+                        idx = idx_cr
+                    elif idx_cr == -1:
+                        idx = idx_newline
+                    else:
+                        idx = min(idx_newline, idx_cr)
+                    line = buf[:idx].decode("utf-8", errors="replace").rstrip()
+                    if idx + 1 < len(buf):
+                        buf = buf[idx + 1:]
+                    else:
+                        buf = b""
+                    if line and callback:
+                        callback(-1, f"{prefix} | {line}")
+
+            if buf:
+                line = buf.decode("utf-8", errors="replace").rstrip()
                 if line and callback:
                     callback(-1, f"{prefix} | {line}")
-            process.wait()
+
+            process.wait(timeout=600)
             return process.returncode == 0
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.wait()
+            if callback:
+                callback(-1, f"{prefix} | TIMEOUT (killed after 600s)")
+            return False
         except Exception as e:
             if callback:
-                callback(-1, f"{prefix} LOI: {e}")
+                callback(-1, f"{prefix} | ERROR: {e}")
             return False
 
     def add_package(

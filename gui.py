@@ -1,20 +1,16 @@
 import sys
-import os
-import json
 import platform
 import subprocess
-import threading
 from pathlib import Path
 
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QTabWidget, QTreeWidget, QTreeWidgetItem, QPushButton, QLabel,
     QProgressBar, QTextEdit, QGroupBox, QLineEdit, QComboBox,
-    QFileDialog, QMessageBox, QSplitter, QFrame, QCheckBox,
-    QScrollArea, QGridLayout, QSizePolicy,
+    QMessageBox, QCheckBox, QScrollArea, QGridLayout,
 )
-from PyQt6.QtCore import Qt, QThread, pyqtSignal, QSize
-from PyQt6.QtGui import QFont, QColor, QIcon, QTextCursor
+from PyQt6.QtCore import Qt, QThread, pyqtSignal
+from PyQt6.QtGui import QFont, QColor, QTextCursor
 
 from installer import Installer
 
@@ -48,7 +44,7 @@ class ManagePackageDialog(QWidget):
         super().__init__(parent)
         self.installer = installer
         self.edit_pkg = edit_pkg
-        self.setWindowTitle("Chinh sua package" if edit_pkg else "Them package moi")
+        self.setWindowTitle("Packages edit" if edit_pkg else "Add packages")
         self.setMinimumSize(500, 450)
         self._build_ui()
         if edit_pkg:
@@ -68,41 +64,41 @@ class ManagePackageDialog(QWidget):
 
         form.addWidget(QLabel("ID:"), 1, 0)
         self.input_id = QLineEdit()
-        self.input_id.setPlaceholderText("vi: rust, docker, tailscale...")
+        self.input_id.setPlaceholderText("e.g. rust, docker, tailscale...")
         form.addWidget(self.input_id, 1, 1)
 
-        form.addWidget(QLabel("Ten:"), 2, 0)
+        form.addWidget(QLabel("Name:"), 2, 0)
         self.input_name = QLineEdit()
-        self.input_name.setPlaceholderText("Ten hien thi")
+        self.input_name.setPlaceholderText("Display name")
         form.addWidget(self.input_name, 2, 1)
 
-        form.addWidget(QLabel("Mo ta:"), 3, 0)
+        form.addWidget(QLabel("Description:"), 3, 0)
         self.input_desc = QLineEdit()
-        self.input_desc.setPlaceholderText("Mo ta ngan gon")
+        self.input_desc.setPlaceholderText("Short description")
         form.addWidget(self.input_desc, 3, 1)
 
-        grp_install = QGroupBox("Lenh cai dat (theo platform)")
+        grp_install = QGroupBox("Install command (per platform)")
         grp_layout = QVBoxLayout()
         self.inputs_install = {}
         for plat in ["linux", "darwin", "win32"]:
             row = QHBoxLayout()
             row.addWidget(QLabel(f"{plat}:"))
             le = QLineEdit()
-            le.setPlaceholderText(f"Lenh cai tren {plat}")
+            le.setPlaceholderText(f"Install command for {plat}")
             row.addWidget(le)
             grp_layout.addLayout(row)
             self.inputs_install[plat] = le
         grp_install.setLayout(grp_layout)
         form.addWidget(grp_install, 4, 0, 1, 2)
 
-        grp_check = QGroupBox("Lenh kiem tra (theo platform)")
+        grp_check = QGroupBox("Check command (per platform)")
         grp_layout2 = QVBoxLayout()
         self.inputs_check = {}
         for plat in ["linux", "darwin", "win32"]:
             row = QHBoxLayout()
             row.addWidget(QLabel(f"{plat}:"))
             le = QLineEdit()
-            le.setPlaceholderText(f"Lenh check tren {plat}")
+            le.setPlaceholderText(f"Check command for {plat}")
             row.addWidget(le)
             grp_layout2.addLayout(row)
             self.inputs_check[plat] = le
@@ -112,9 +108,9 @@ class ManagePackageDialog(QWidget):
         layout.addLayout(form)
 
         btn_row = QHBoxLayout()
-        btn_save = QPushButton("Luu")
+        btn_save = QPushButton("Save")
         btn_save.clicked.connect(self._save)
-        btn_cancel = QPushButton("Huy")
+        btn_cancel = QPushButton("Cancel")
         btn_cancel.clicked.connect(self.close)
         btn_row.addWidget(btn_save)
         btn_row.addWidget(btn_cancel)
@@ -144,7 +140,7 @@ class ManagePackageDialog(QWidget):
         desc = self.input_desc.text().strip()
 
         if not pkg_id or not name:
-            QMessageBox.warning(self, "Loi", "ID va Ten khong duoc de trong!")
+            QMessageBox.warning(self, "Error", "ID and Name cannot be empty!")
             return
 
         install = {}
@@ -160,7 +156,7 @@ class ManagePackageDialog(QWidget):
                 check[plat] = val
 
         if not install:
-            QMessageBox.warning(self, "Loi", "Can it nhat 1 lenh cai dat!")
+            QMessageBox.warning(self, "Error", "Need at least one install command!")
             return
 
         if self.edit_pkg:
@@ -173,7 +169,7 @@ class ManagePackageDialog(QWidget):
                 cat_id, pkg_id, name, desc, install, check
             )
             if not ok:
-                QMessageBox.warning(self, "Loi", f"Package '{pkg_id}' da ton tai!")
+                QMessageBox.warning(self, "Error", f"Package '{pkg_id}' already exists!")
                 return
 
         self.saved.emit()
@@ -212,13 +208,13 @@ class MainWindow(QMainWindow):
         self.tab_manage = self._build_manage_tab()
         self.tab_log = self._build_log_tab()
 
-        self.tabs.addTab(self.tab_install, "  Cai dat  ")
-        self.tabs.addTab(self.tab_manage, "  Quan ly  ")
+        self.tabs.addTab(self.tab_install, "  Apply  ")
+        self.tabs.addTab(self.tab_manage, "  Manager  ")
         self.tabs.addTab(self.tab_log, "  Log  ")
 
         bottom = QHBoxLayout()
 
-        self.btn_install = QPushButton("  Cai dat da chon  ")
+        self.btn_install = QPushButton("  Install Selected  ")
         self.btn_install.setFont(QFont("Sans Serif", 11, QFont.Weight.Bold))
         self.btn_install.setMinimumHeight(40)
         self.btn_install.setStyleSheet("""
@@ -236,11 +232,11 @@ class MainWindow(QMainWindow):
         self.btn_install.clicked.connect(self._start_install)
         bottom.addWidget(self.btn_install)
 
-        self.btn_select_all = QPushButton("Chon tat ca")
+        self.btn_select_all = QPushButton("Select All")
         self.btn_select_all.clicked.connect(self._select_all)
         bottom.addWidget(self.btn_select_all)
 
-        self.btn_deselect_all = QPushButton("Bo chon tat ca")
+        self.btn_deselect_all = QPushButton("Deselect All")
         self.btn_deselect_all.clicked.connect(self._deselect_all)
         bottom.addWidget(self.btn_deselect_all)
 
@@ -251,7 +247,7 @@ class MainWindow(QMainWindow):
         self.progress_bar.setValue(0)
         main_layout.addWidget(self.progress_bar)
 
-        self.status_label = QLabel("San sang")
+        self.status_label = QLabel("Ready")
         self.status_label.setStyleSheet("color: #666; padding: 2px;")
         main_layout.addWidget(self.status_label)
 
@@ -260,7 +256,7 @@ class MainWindow(QMainWindow):
         layout = QVBoxLayout(widget)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        info = QLabel(f"Nen ho tro: {self.installer.platform_key}  |  Tong: {len(self.installer.get_all_packages())} goi")
+        info = QLabel(f"Platform: {self.installer.platform_key}  |  Total: {len(self.installer.get_all_packages())} packages")
         info.setStyleSheet("color: #888; padding: 5px;")
         layout.addWidget(info)
 
@@ -281,7 +277,7 @@ class MainWindow(QMainWindow):
 
         btn_row = QHBoxLayout()
 
-        btn_add_pkg = QPushButton("  + Them package  ")
+        btn_add_pkg = QPushButton("  + Add package  ")
         btn_add_pkg.setStyleSheet("""
             QPushButton {
                 background-color: #2196F3;
@@ -295,7 +291,7 @@ class MainWindow(QMainWindow):
         btn_add_pkg.clicked.connect(self._add_package)
         btn_row.addWidget(btn_add_pkg)
 
-        btn_add_cat = QPushButton("  + Them category  ")
+        btn_add_cat = QPushButton("  + Add category  ")
         btn_add_cat.setStyleSheet("""
             QPushButton {
                 background-color: #9C27B0;
@@ -309,7 +305,7 @@ class MainWindow(QMainWindow):
         btn_add_cat.clicked.connect(self._add_category)
         btn_row.addWidget(btn_add_cat)
 
-        btn_edit = QPushButton("  Sua  ")
+        btn_edit = QPushButton("  Edit  ")
         btn_edit.setStyleSheet("""
             QPushButton {
                 background-color: #FF9800;
@@ -323,7 +319,7 @@ class MainWindow(QMainWindow):
         btn_edit.clicked.connect(self._edit_package)
         btn_row.addWidget(btn_edit)
 
-        btn_remove = QPushButton("  Xoa  ")
+        btn_remove = QPushButton("  Delete  ")
         btn_remove.setStyleSheet("""
             QPushButton {
                 background-color: #f44336;
@@ -337,14 +333,14 @@ class MainWindow(QMainWindow):
         btn_remove.clicked.connect(self._remove_package)
         btn_row.addWidget(btn_remove)
 
-        btn_reload = QPushButton("  Tai lai  ")
+        btn_reload = QPushButton("  Reload  ")
         btn_reload.clicked.connect(self._reload_manage)
         btn_row.addWidget(btn_reload)
 
         layout.addLayout(btn_row)
 
         self.manage_tree = QTreeWidget()
-        self.manage_tree.setHeaderLabels(["ID", "Ten", "Mo ta", "Category", "Da cai"])
+        self.manage_tree.setHeaderLabels(["ID", "Name", "Info", "Category", "Exist"])
         self.manage_tree.setColumnWidth(0, 120)
         self.manage_tree.setColumnWidth(1, 150)
         self.manage_tree.setColumnWidth(2, 250)
@@ -375,7 +371,7 @@ class MainWindow(QMainWindow):
         """)
         layout.addWidget(self.log_text)
 
-        btn_clear = QPushButton("Xoa log")
+        btn_clear = QPushButton("Clear log")
         btn_clear.clicked.connect(self.log_text.clear)
         layout.addWidget(btn_clear)
 
@@ -425,7 +421,7 @@ class MainWindow(QMainWindow):
                 row.addWidget(desc_label)
 
                 installed = self.installer.is_installed(pkg["id"])
-                status = QLabel("  [Da cai]  " if installed else "  [Chua cai]  ")
+                status = QLabel("  [Installed]  " if installed else "  [Not installed]  ")
                 status.setStyleSheet(
                     "color: #4CAF50; font-weight: bold;" if installed
                     else "color: #f44336;"
@@ -442,7 +438,7 @@ class MainWindow(QMainWindow):
     def _update_status(self):
         total = len(self.checkboxes)
         selected = sum(1 for cb in self.checkboxes.values() if cb.isChecked())
-        self.status_label.setText(f"Da chon: {selected}/{total} goi")
+        self.status_label.setText(f"Selected: {selected}/{total}")
 
     def _select_all(self):
         for cb in self.checkboxes.values():
@@ -455,12 +451,12 @@ class MainWindow(QMainWindow):
     def _start_install(self):
         selected = [pid for pid, cb in self.checkboxes.items() if cb.isChecked()]
         if not selected:
-            QMessageBox.information(self, "Thong bao", "Hay chon it nhat 1 goi de cai dat!")
+            QMessageBox.information(self, "Notice", "Select at least one package to install!")
             return
 
         reply = QMessageBox.question(
-            self, "Xac nhan",
-            f"Cai dat {len(selected)} goi: {', '.join(selected)}?",
+            self, "Confirm",
+            f"Install {len(selected)} package(s): {', '.join(selected)}?",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
         )
         if reply != QMessageBox.StandardButton.Yes:
@@ -470,7 +466,7 @@ class MainWindow(QMainWindow):
         self.progress_bar.setValue(0)
         self.tabs.setCurrentWidget(self.tab_log)
         self.log_text.clear()
-        self._log(f"[START] Bat dau cai dat {len(selected)} goi...")
+        self._log(f"[START] Installing {len(selected)} package(s)...")
 
         self.install_thread = InstallThread(self.installer, selected)
         self.install_thread.progress.connect(self._on_install_progress)
@@ -486,11 +482,11 @@ class MainWindow(QMainWindow):
         self.btn_install.setEnabled(True)
         if success:
             self.progress_bar.setValue(100)
-            self._log("[DONE] Cai dat thanh cong tat ca!")
-            self.status_label.setText("Cai dat thanh cong!")
+            self._log("[DONE] Success!")
+            self.status_label.setText("Success!")
         else:
-            self._log("[DONE] Co loi xay ra, xem log chi tiet.")
-            self.status_label.setText("Co loi - xem log!")
+            self._log("[DONE] Failed, check log.")
+            self.status_label.setText("Failed - check log!")
         self._load_packages()
 
     def _log(self, msg):
@@ -511,7 +507,7 @@ class MainWindow(QMainWindow):
                     pkg.get("name", ""),
                     pkg.get("description", ""),
                     cat["name"],
-                    "Co" if installed else "Khong",
+                    "Yes" if installed else "No",
                 ])
                 cat_item.addChild(child)
             cat_item.setExpanded(True)
@@ -523,18 +519,18 @@ class MainWindow(QMainWindow):
 
     def _add_category(self):
         from PyQt6.QtWidgets import QInputDialog
-        name, ok = QInputDialog.getText(self, "Them category", "Ten category:")
+        name, ok = QInputDialog.getText(self, "Add Category", "Category name:")
         if ok and name.strip():
             cat_id = name.strip().lower().replace(" ", "_")
             if not self.installer.add_category(cat_id, name.strip()):
-                QMessageBox.warning(self, "Loi", "Category da ton tai!")
+                QMessageBox.warning(self, "Error", "Category already exists!")
             else:
                 self._on_manage_changed()
 
     def _edit_package(self):
         item = self.manage_tree.currentItem()
         if item is None or item.parent() is None:
-            QMessageBox.information(self, "Thong bao", "Chon 1 package de sua!")
+            QMessageBox.information(self, "Notice", "Select a package to edit!")
             return
         pkg_id = item.text(0)
         pkg = self.installer.get_package(pkg_id)
@@ -546,13 +542,13 @@ class MainWindow(QMainWindow):
     def _remove_package(self):
         item = self.manage_tree.currentItem()
         if item is None or item.parent() is None:
-            QMessageBox.information(self, "Thong bao", "Chon 1 package de xoa!")
+            QMessageBox.information(self, "Notice", "Select a package to delete!")
             return
         pkg_id = item.text(0)
         pkg_name = item.text(1)
         reply = QMessageBox.question(
-            self, "Xac nhan xoa",
-            f"Xoa package '{pkg_name}' ({pkg_id})?",
+            self, "Confirm",
+            f"Delete package '{pkg_name}' ({pkg_id})?",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
         )
         if reply == QMessageBox.StandardButton.Yes:

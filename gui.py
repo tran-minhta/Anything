@@ -196,6 +196,8 @@ class InstallThread(QThread):
 
 
 class SideButton(QWidget):
+    clicked = pyqtSignal()
+
     def __init__(self, icon_char, label, parent=None):
         super().__init__(parent)
         self._icon_char = icon_char
@@ -219,6 +221,10 @@ class SideButton(QWidget):
         layout.addWidget(self._text_lbl, 1)
 
         self._apply_style()
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.clicked.emit()
 
     def _apply_style(self):
         if self._active:

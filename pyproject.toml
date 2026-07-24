@@ -1,7 +1,7 @@
 [project]
 name = "anything"
 version = "0.1.0"
-description = "Add your description here"
+description = "Cross-platform development environment setup tool"
 readme = "README.md"
 requires-python = ">=3.13"
 

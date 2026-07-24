@@ -2,6 +2,41 @@
 set -e
 echo "🚀 Bắt đầu quá trình thiết lập hệ thống..."
 
+# --- HELPER FUNCTIONS ---
+# Lấy version mới nhất từ GitHub releases
+get_github_latest() {
+    local repo="$1"
+    curl -s "https://api.github.com/repos/${repo}/releases/latest" | grep '"tag_name"' | sed -E 's/.*"tag_name": *"v?([^"]+)".*/\1/'
+}
+
+# So sánh version (0: bằng, 1: a > b, 2: a < b)
+version_gt() {
+    [ "$(printf '%s\n' "$1" "$2" | sort -V | head -n1)" != "$1" ]
+}
+
+# Kiểm tra và cài/cập nhật nếu cần (dùng cho các tool có version)
+install_if_needed() {
+    local name="$1"
+    local current_cmd="$2"
+    local latest="$3"
+    local install_fn="$4"
+
+    local current=""
+    if eval "$current_cmd" &>/dev/null; then
+        current=$(eval "$current_cmd" 2>/dev/null | head -1 | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?')
+    fi
+
+    if [ -z "$current" ]; then
+        echo "📦 Cài đặt ${name} (chưa có)..."
+        eval "$install_fn"
+    elif [ "$latest" != "skip" ] && version_gt "$latest" "$current"; then
+        echo "🔄 Cập nhật ${name} từ ${current} → ${latest}..."
+        eval "$install_fn"
+    else
+        echo "✅ ${name} ${current:-unknown} - đã là mới nhất"
+    fi
+}
+
 # 1. CÀI ĐẶT CƠ BẢN
 APT_PACKAGES=(zsh tmux fzf bat eza stow curl git build-essential unzip wget apt-transport-https)
 sudo apt update && sudo apt install -y "${APT_PACKAGES[@]}"
@@ -21,22 +56,51 @@ if [ ! -f ~/.commonrc ]; then
     done
 fi
 
-# 3. RUST & GOLANG (Dùng hàm kiểm tra PATH)
-if ! command -v cargo >/dev/null; then
+# 3. RUST & GOLANG
+LATEST_GO=$(curl -s https://go.dev/VERSION?m=text | head -n 1 | grep -oE 'go[0-9]+\.[0-9]+(\.[0-9]+)?' | sed 's/go//')
+
+install_rust() {
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+}
+
+if ! command -v cargo >/dev/null; then
+    echo "📦 Cài đặt Rust..."
+    install_rust
+else
+    echo "🔄 Kiểm tra Rust..."
+    rustup update stable 2>/dev/null || true
 fi
 grep -q ".cargo/bin" ~/.commonrc || echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.commonrc
 
-if ! command -v go >/dev/null; then
-    GO_VERSION=$(curl -s https://go.dev/VERSION?m=text | head -n 1)
-    wget "https://dl.google.com/go/${GO_VERSION}.linux-arm64.tar.gz" -O /tmp/go.tar.gz
+install_go() {
+    wget "https://dl.google.com/go/go${LATEST_GO}.linux-arm64.tar.gz" -O /tmp/go.tar.gz
     sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf /tmp/go.tar.gz
+}
+
+CURRENT_GO=""
+if command -v go >/dev/null; then
+    CURRENT_GO=$(go version | grep -oE 'go[0-9]+\.[0-9]+(\.[0-9]+)?' | sed 's/go//')
+fi
+
+if [ -z "$CURRENT_GO" ]; then
+    echo "📦 Cài đặt Go ${LATEST_GO}..."
+    install_go
+elif version_gt "$LATEST_GO" "$CURRENT_GO"; then
+    echo "🔄 Cập nhật Go từ ${CURRENT_GO} → ${LATEST_GO}..."
+    install_go
+else
+    echo "✅ Go ${CURRENT_GO} - đã là mới nhất"
 fi
 grep -q "/usr/local/go/bin" ~/.commonrc || echo 'export PATH="$PATH:/usr/local/go/bin"' >> ~/.commonrc
 
 # 4. NVM & NODE.js
+LATEST_NVM=$(curl -s https://api.github.com/repos/nvm-sh/nvm/releases/latest | grep '"tag_name"' | sed -E 's/.*"tag_name": *"v?([^"]+)".*/\1/')
+
 if [ ! -d "$HOME/.nvm" ]; then
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+    echo "📦 Cài đặt NVM v${LATEST_NVM}..."
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${LATEST_NVM}/install.sh | bash
+else
+    echo "✅ NVM đã cài đặt"
 fi
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
@@ -51,29 +115,68 @@ export NVM_DIR="$HOME/.nvm"
 NVMEOF
 fi
 
-# Cài Node.js stable qua nvm
+# Cài Node.js stable qua nvm (nếu chưa có)
 if command -v nvm &>/dev/null; then
-    nvm install --lts
-    nvm use --lts
-    nvm alias default lts/*
+    if ! nvm ls &>/dev/null 2>&1 || [ -z "$(nvm ls 2>/dev/null | grep -E 'v[0-9]+')" ]; then
+        echo "📦 Cài đặt Node.js LTS..."
+        nvm install --lts
+        nvm use --lts
+        nvm alias default lts/*
+    else
+        echo "✅ Node.js đã cài đặt: $(node -v 2>/dev/null)"
+    fi
 fi
 
 # 5. BUN
 if ! command -v bun &> /dev/null; then
+    echo "📦 Cài đặt Bun..."
     curl -fsSL https://bun.sh/install | bash
+else
+    BUN_CURRENT=$(bun --version 2>/dev/null)
+    BUN_LATEST=$(curl -s https://api.github.com/repos/oven-sh/bun/releases/latest | grep '"tag_name"' | sed -E 's/.*"tag_name": *"bun-v?([^"]+)".*/\1/')
+    if [ -n "$BUN_LATEST" ] && version_gt "$BUN_LATEST" "$BUN_CURRENT"; then
+        echo "🔄 Cập nhật Bun từ ${BUN_CURRENT} → ${BUN_LATEST}..."
+        bun upgrade 2>/dev/null || curl -fsSL https://bun.sh/install | bash
+    else
+        echo "✅ Bun ${BUN_CURRENT} - đã là mới nhất"
+    fi
 fi
 grep -q ".bun/bin" ~/.commonrc || echo 'export PATH="$HOME/.bun/bin:$PATH"' >> ~/.commonrc
 
 # 6. UV (Python package manager)
 if ! command -v uv &> /dev/null; then
+    echo "📦 Cài đặt UV..."
     curl -LsSf https://astral.sh/uv/install.sh | sh
+else
+    UV_CURRENT=$(uv --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?')
+    UV_LATEST=$(curl -s https://api.github.com/repos/astral-sh/uv/releases/latest | grep '"tag_name"' | sed -E 's/.*"tag_name": *"v?([^"]+)".*/\1/')
+    if [ -n "$UV_LATEST" ] && version_gt "$UV_LATEST" "$UV_CURRENT"; then
+        echo "🔄 Cập nhật UV từ ${UV_CURRENT} → ${UV_LATEST}..."
+        uv self update 2>/dev/null || curl -LsSf https://astral.sh/uv/install.sh | sh
+    else
+        echo "✅ UV ${UV_CURRENT} - đã là mới nhất"
+    fi
 fi
 grep -q ".local/bin" ~/.commonrc || echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.commonrc
 
-# 7. NEOVIM (Tối ưu cho ARM64)
-if ! command -v nvim &> /dev/null; then
+# 7. NEOVIM
+install_nvim() {
     wget -qO /tmp/nvim.tar.gz https://github.com/neovim/neovim/releases/latest/download/nvim-linux-arm64.tar.gz
     sudo tar -C /opt -xzf /tmp/nvim.tar.gz && sudo ln -sf /opt/nvim-linux-arm64/bin/nvim /usr/local/bin/nvim
+}
+
+if ! command -v nvim &> /dev/null; then
+    echo "📦 Cài đặt Neovim..."
+    install_nvim
+else
+    NVIM_CURRENT=$(nvim --version 2>/dev/null | head -1 | grep -oE 'v[0-9]+\.[0-9]+(\.[0-9]+)?' | sed 's/v//')
+    NVIM_LATEST=$(curl -s https://api.github.com/repos/neovim/neovim/releases/latest | grep '"tag_name"' | sed -E 's/.*"tag_name": *"v?([^"]+)".*/\1/')
+    if [ -n "$NVIM_LATEST" ] && version_gt "$NVIM_LATEST" "$NVIM_CURRENT"; then
+        echo "🔄 Cập nhật Neovim từ ${NVIM_CURRENT} → ${NVIM_LATEST}..."
+        install_nvim
+    else
+        echo "✅ Neovim ${NVIM_CURRENT} - đã là mới nhất"
+    fi
 fi
 
 # 8. LAZYVIM (Neovim config distribution)

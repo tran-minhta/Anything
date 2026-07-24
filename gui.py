@@ -548,7 +548,7 @@ class MainWindow(QMainWindow):
         self.page_buttons = []
         for i, (icon, label) in enumerate(nav_items):
             btn = SideButton(icon, label)
-            btn.clicked.connect(lambda checked, idx=i: self._set_active_page(idx))
+            btn.clicked.connect(lambda _, idx=i: self._set_active_page(idx))
             sb_layout.addWidget(btn)
             self.page_buttons.append(btn)
 

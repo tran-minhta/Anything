@@ -78,14 +78,16 @@ install_go() {
 }
 
 CURRENT_GO=""
-if command -v go >/dev/null; then
+if [ -x /usr/local/go/bin/go ]; then
+    CURRENT_GO=$(/usr/local/go/bin/go version | grep -oE 'go[0-9]+\.[0-9]+(\.[0-9]+)?' | sed 's/go//')
+elif command -v go >/dev/null; then
     CURRENT_GO=$(go version | grep -oE 'go[0-9]+\.[0-9]+(\.[0-9]+)?' | sed 's/go//')
 fi
 
 if [ -z "$CURRENT_GO" ]; then
     echo "📦 Cài đặt Go ${LATEST_GO}..."
     install_go
-elif version_gt "$LATEST_GO" "$CURRENT_GO"; then
+elif [ "$LATEST_GO" != "$CURRENT_GO" ] && version_gt "$LATEST_GO" "$CURRENT_GO"; then
     echo "🔄 Cập nhật Go từ ${CURRENT_GO} → ${LATEST_GO}..."
     install_go
 else

@@ -35,7 +35,7 @@ C = {
     "purple":       "#c084fc",
     "purple_bg":    "#6b21a8",
     "yellow":       "#facc15",
-    "sidebar_w":    64,
+    "sidebar_w":    220,
 }
 
 STYLESHEET = f"""
@@ -195,48 +195,59 @@ class InstallThread(QThread):
         self._stop = True
 
 
-class SideButton(QPushButton):
+class SideButton(QWidget):
     def __init__(self, icon_char, label, parent=None):
         super().__init__(parent)
         self._icon_char = icon_char
         self._label = label
-        self.setFixedSize(48, 56)
-        self.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.setToolTip(label)
         self._active = False
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setFixedHeight(44)
+        self.setToolTip(label)
+
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(14, 0, 14, 0)
+        layout.setSpacing(10)
+
+        self._icon_lbl = QLabel(icon_char)
+        self._icon_lbl.setFixedWidth(24)
+        self._icon_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self._icon_lbl)
+
+        self._text_lbl = QLabel(label)
+        self._text_lbl.setFont(QFont("Sans Serif", 11))
+        layout.addWidget(self._text_lbl, 1)
+
         self._apply_style()
 
-    def paintEvent(self, event):
-        super().paintEvent(event)
-        painter = self.style()
-
-    def setText(self, text):
-        pass
-
     def _apply_style(self):
-        color = C['accent'] if self._active else C['text_dim']
-        bg = C['bg_card'] if self._active else "transparent"
+        if self._active:
+            bg = C['bg_card']
+            color = C['accent']
+            border = f"border-left: 3px solid {C['accent']};"
+        else:
+            bg = "transparent"
+            color = C['text_dim']
+            border = "border-left: 3px solid transparent;"
         self.setStyleSheet(f"""
-            QPushButton {{
+            SideButton {{
                 background-color: {bg};
-                color: {color};
-                border: none;
-                border-radius: 8px;
-                font-size: 18px;
-                font-weight: bold;
+                border-radius: 0px;
+                {border}
             }}
-            QPushButton:hover {{
+            SideButton:hover {{
                 background-color: {C['bg_card'] if not self._active else C['bg_card_alt']};
-                color: {C['text'] if not self._active else C['accent']};
             }}
         """)
+        self._icon_lbl.setStyleSheet(f"color: {color}; font-size: 16px; background: transparent; border: none;")
+        self._text_lbl.setStyleSheet(f"color: {color}; font-size: 11px; background: transparent; border: none;")
 
     def set_active(self, active):
         self._active = active
         self._apply_style()
 
     def sizeHint(self):
-        return QSize(48, 56)
+        return QSize(200, 44)
 
 
 class PackageCard(QFrame):
@@ -484,45 +495,86 @@ class MainWindow(QMainWindow):
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(0)
 
-        # ── Sidebar (compact) ──
+        # ── Sidebar ──
         sidebar = QWidget()
         sidebar.setFixedWidth(C["sidebar_w"])
         sidebar.setStyleSheet(f"QWidget {{ background-color: {C['bg_sidebar']}; border-right: 1px solid {C['border']}; }}")
         sb_layout = QVBoxLayout(sidebar)
-        sb_layout.setContentsMargins(8, 12, 8, 12)
-        sb_layout.setSpacing(2)
+        sb_layout.setContentsMargins(0, 0, 0, 0)
+        sb_layout.setSpacing(0)
 
-        logo = QLabel("A")
-        logo.setFont(QFont("Sans Serif", 22, QFont.Weight.Bold))
-        logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        logo.setStyleSheet(f"color: {C['accent']}; padding: 4px 0 8px 0;")
-        logo.setFixedHeight(40)
-        sb_layout.addWidget(logo)
+        # Logo / Branding
+        logo_container = QWidget()
+        logo_container.setFixedHeight(64)
+        logo_container.setStyleSheet(f"background-color: {C['bg_sidebar']};")
+        logo_layout = QHBoxLayout(logo_container)
+        logo_layout.setContentsMargins(16, 0, 16, 0)
+        logo_layout.setSpacing(10)
 
+        logo_icon = QLabel("A")
+        logo_icon.setFont(QFont("Sans Serif", 20, QFont.Weight.Bold))
+        logo_icon.setFixedSize(32, 32)
+        logo_icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        logo_icon.setStyleSheet(f"color: {C['bg']}; background-color: {C['accent']}; border-radius: 8px;")
+        logo_layout.addWidget(logo_icon, 0, Qt.AlignmentFlag.AlignVCenter)
+
+        logo_text = QLabel("Anything")
+        logo_text.setFont(QFont("Sans Serif", 14, QFont.Weight.Bold))
+        logo_text.setStyleSheet(f"color: {C['text']}; background: transparent;")
+        logo_layout.addWidget(logo_text, 0, Qt.AlignmentFlag.AlignVCenter)
+        logo_layout.addStretch()
+
+        sb_layout.addWidget(logo_container)
+
+        # Separator
         sep = QFrame()
         sep.setFixedHeight(1)
         sep.setStyleSheet(f"background-color: {C['border']};")
         sb_layout.addWidget(sep)
-        sb_layout.addSpacing(4)
+        sb_layout.addSpacing(8)
 
+        # Navigation
         nav_items = [
-            ("\u2699", "Install"),
-            ("\u270E", "Manage"),
-            ("\u2263", "Log"),
+            ("\u2699\uFE0F", "Install"),
+            ("\u270E\uFE0F", "Manage"),
+            ("\U0001F4DC", "Log"),
         ]
         self.page_buttons = []
         for i, (icon, label) in enumerate(nav_items):
             btn = SideButton(icon, label)
             btn.clicked.connect(lambda checked, idx=i: self._set_active_page(idx))
-            sb_layout.addWidget(btn, 0, Qt.AlignmentFlag.AlignHCenter)
+            sb_layout.addWidget(btn)
             self.page_buttons.append(btn)
 
+        sb_layout.addSpacing(8)
+
+        # Separator
+        sep2 = QFrame()
+        sep2.setFixedHeight(1)
+        sep2.setStyleSheet(f"background-color: {C['border']};")
+        sb_layout.addWidget(sep2)
         sb_layout.addStretch()
 
-        info_box = QLabel(f"{self.installer.platform_key}\n{len(self.installer.get_all_packages())} pkgs")
-        info_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        info_box.setStyleSheet(f"font-size: 9px; color: {C['text_muted']}; padding: 4px; background: transparent;")
-        sb_layout.addWidget(info_box)
+        # Stats box at bottom
+        stats_container = QWidget()
+        stats_container.setStyleSheet(f"background-color: {C['bg_card']}; border-radius: 8px; margin: 8px;")
+        stats_layout = QVBoxLayout(stats_container)
+        stats_layout.setContentsMargins(12, 10, 12, 10)
+        stats_layout.setSpacing(4)
+
+        pkg_count = len(self.installer.get_all_packages())
+        cat_count = len([c for c in self.installer.get_categories() if c.get("packages")])
+
+        stats_title = QLabel(f"{pkg_count} packages")
+        stats_title.setFont(QFont("Sans Serif", 11, QFont.Weight.Bold))
+        stats_title.setStyleSheet(f"color: {C['text']}; background: transparent;")
+        stats_layout.addWidget(stats_title)
+
+        stats_sub = QLabel(f"{cat_count} categories  \u00B7  {self.installer.platform_key}")
+        stats_sub.setStyleSheet(f"color: {C['text_muted']}; font-size: 10px; background: transparent;")
+        stats_layout.addWidget(stats_sub)
+
+        sb_layout.addWidget(stats_container)
 
         root.addWidget(sidebar)
 
@@ -851,6 +903,30 @@ class MainWindow(QMainWindow):
         if not selected:
             QMessageBox.information(self, "Notice", "Select at least one package!")
             return
+
+        # Check if sudo is needed
+        sudo_needed = self.installer.needs_sudo_for_packages(selected)
+        if sudo_needed:
+            has_nopasswd = self.installer.check_sudo()
+            if not has_nopasswd:
+                msg = (
+                    "Some packages require root privileges (sudo).\n\n"
+                    "Packages needing sudo:\n"
+                    + "\n".join(f"  - {name}" for name in sudo_needed[:10])
+                    + (f"\n  ... and {len(sudo_needed)-10} more" if len(sudo_needed) > 10 else "")
+                    + "\n\nEnter your sudo password to continue:"
+                )
+                password, ok = QInputDialog.getText(
+                    self, "Sudo Password Required", msg,
+                    QLineEdit.EchoMode.Password,
+                )
+                if not ok or not password:
+                    QMessageBox.warning(self, "Cancelled", "Installation cancelled — sudo password is required.")
+                    return
+                self.installer.set_sudo_password(password)
+            else:
+                self._log("[INFO] Passwordless sudo detected, proceeding...")
+
         reply = QMessageBox.question(
             self, "Confirm",
             f"Install {len(selected)} package(s)?\n\n{', '.join(selected[:12])}{'...' if len(selected) > 12 else ''}",

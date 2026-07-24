@@ -1,4 +1,5 @@
 import json
+import os
 import platform
 import subprocess
 import threading
@@ -20,6 +21,9 @@ class Installer:
         else:
             self.platform_key = "win32"
         self.data = self._load()
+        self._sudo_password: Optional[str] = None
+        self._sudo_checked = False
+        self._needs_sudo = False
 
     def _load(self) -> dict:
         try:
@@ -76,7 +80,6 @@ class Installer:
             return False
 
     def get_installed_version(self, pkg_id: str) -> Optional[str]:
-        """Try to get the installed version of a package."""
         pkg = self.get_package(pkg_id)
         if pkg is None:
             return None
@@ -107,6 +110,47 @@ class Installer:
         except (subprocess.TimeoutExpired, FileNotFoundError, OSError):
             pass
         return None
+
+    # ── Sudo handling ──
+
+    def check_sudo(self) -> bool:
+        """Check if sudo is available and passwordless."""
+        if self.platform_key == "win32":
+            return False
+        try:
+            result = subprocess.run(
+                "sudo -n true", shell=True, capture_output=True, timeout=5
+            )
+            return result.returncode == 0
+        except Exception:
+            return False
+
+    def needs_sudo_for_packages(self, pkg_ids: list[str]) -> list[str]:
+        """Return list of package names that need sudo."""
+        needed = []
+        for pkg_id in pkg_ids:
+            pkg = self.get_package(pkg_id)
+            if pkg is None:
+                continue
+            cmd = pkg.get("install", {}).get(self.platform_key, "")
+            if cmd and self._cmd_needs_sudo(cmd):
+                needed.append(pkg["name"])
+        return needed
+
+    def _cmd_needs_sudo(self, cmd: str) -> bool:
+        """Check if a command string contains sudo."""
+        parts = cmd.strip().split()
+        for i, part in enumerate(parts):
+            if part == "sudo":
+                return True
+            if part in ("||", "&&", "|", ";"):
+                continue
+        return False
+
+    def set_sudo_password(self, password: str):
+        self._sudo_password = password
+
+    # ── Install ──
 
     def install(
         self,
@@ -171,14 +215,33 @@ class Installer:
     ) -> bool:
         shell = self.platform_key != "win32"
         process = None
+
+        use_sudo_stdin = False
+        if self._cmd_needs_sudo(cmd) and self._sudo_password:
+            use_sudo_stdin = True
+
         try:
-            process = subprocess.Popen(
-                cmd,
-                shell=shell,
+            popen_kwargs = dict(
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 bufsize=0,
             )
+            if use_sudo_stdin:
+                popen_kwargs["stdin"] = subprocess.PIPE
+
+            process = subprocess.Popen(
+                cmd,
+                shell=shell,
+                **popen_kwargs,
+            )
+
+            if use_sudo_stdin:
+                try:
+                    process.stdin.write((self._sudo_password + "\n").encode())
+                    process.stdin.flush()
+                    process.stdin.close()
+                except (BrokenPipeError, OSError):
+                    pass
 
             output_queue: queue.Queue = queue.Queue()
 
@@ -253,6 +316,8 @@ class Installer:
             if callback:
                 callback(-1, f"{prefix} | ERROR: {e}")
             return False
+
+    # ── Package management ──
 
     def add_package(
         self,

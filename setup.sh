@@ -64,19 +64,25 @@ if ! command -v bun &> /dev/null; then
 fi
 grep -q ".bun/bin" ~/.commonrc || echo 'export PATH="$HOME/.bun/bin:$PATH"' >> ~/.commonrc
 
-# 6. NEOVIM (Tối ưu cho ARM64)
+# 6. UV (Python package manager)
+if ! command -v uv &> /dev/null; then
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+fi
+grep -q ".local/bin" ~/.commonrc || echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.commonrc
+
+# 7. NEOVIM (Tối ưu cho ARM64)
 if ! command -v nvim &> /dev/null; then
     wget -qO /tmp/nvim.tar.gz https://github.com/neovim/neovim/releases/latest/download/nvim-linux-arm64.tar.gz
     sudo tar -C /opt -xzf /tmp/nvim.tar.gz && sudo ln -sf /opt/nvim-linux-arm64/bin/nvim /usr/local/bin/nvim
 fi
 
-# 7. LAZYVIM (Neovim config distribution)
+# 8. LAZYVIM (Neovim config distribution)
 if [ ! -d "$HOME/.config/nvim" ]; then
     git clone https://github.com/LazyVim/starter "$HOME/.config/nvim"
     rm -rf "$HOME/.config/nvim/.git"
 fi
 
-# 8. ALIAS THÔNG MINH (Đặt vào .commonrc)
+# 9. ALIAS THÔNG MINH (Đặt vào .commonrc)
 cat << 'EOF' > ~/.commonrc
 # --- CẤU HÌNH DÙNG CHUNG ---
 export PATH="$HOME/.cargo/bin:$HOME/.bun/bin:$PATH"
@@ -101,7 +107,7 @@ if [ -z "$SSH_AUTH_SOCK" ]; then
     ssh-add ~/.ssh/id_rsa 2>/dev/null
 fi
 EOF
-# 9. DOCKER & DOCKER COMPOSE
+# 10. DOCKER & DOCKER COMPOSE
 if ! command -v docker >/dev/null; then
     echo "🐳 Đang cài đặt Docker và Docker Compose..."
     # Thêm GPG key chính thức của Docker
@@ -121,7 +127,7 @@ if ! command -v docker >/dev/null; then
     # Cấp quyền cho user hiện tại chạy docker không cần sudo
     sudo usermod -aG docker $USER
 fi
-# 10. ZSH, OH-MY-ZSH, PLUGINS & POWERLEVEL10K
+# 11. ZSH, OH-MY-ZSH, PLUGINS & POWERLEVEL10K
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 fi

@@ -22,8 +22,12 @@ class Installer:
         self.data = self._load()
 
     def _load(self) -> dict:
-        with open(self.json_path, "r", encoding="utf-8") as f:
-            return json.load(f)
+        try:
+            with open(self.json_path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except (json.JSONDecodeError, FileNotFoundError) as e:
+            print(f"[WARN] Failed to load {self.json_path}: {e}")
+            return {"categories": []}
 
     def save(self):
         with open(self.json_path, "w", encoding="utf-8") as f:
@@ -68,8 +72,41 @@ class Installer:
                 cmd, shell=shell, capture_output=True, timeout=10
             )
             return result.returncode == 0
-        except (subprocess.TimeoutExpired, FileNotFoundError):
+        except (subprocess.TimeoutExpired, FileNotFoundError, OSError):
             return False
+
+    def get_installed_version(self, pkg_id: str) -> Optional[str]:
+        """Try to get the installed version of a package."""
+        pkg = self.get_package(pkg_id)
+        if pkg is None:
+            return None
+
+        version_cmds = {
+            "rust": "rustc --version | grep -oE '[0-9]+\\.[0-9]+(\\.[0-9]+)?'",
+            "go": "go version | grep -oE 'go[0-9]+\\.[0-9]+(\\.[0-9]+)?' | sed 's/go//'",
+            "node": "node --version | grep -oE '[0-9]+\\.[0-9]+(\\.[0-9]+)?'",
+            "bun": "bun --version",
+            "uv": "uv --version | grep -oE '[0-9]+\\.[0-9]+(\\.[0-9]+)?'",
+            "nvim": "nvim --version | head -1 | grep -oE 'v[0-9]+\\.[0-9]+(\\.[0-9]+)?' | sed 's/v//'",
+            "docker": "docker --version | grep -oE '[0-9]+\\.[0-9]+(\\.[0-9]+)?'",
+            "tailscale": "tailscale --version | grep -oE '[0-9]+\\.[0-9]+(\\.[0-9]+)?'",
+        }
+
+        cmd = version_cmds.get(pkg_id)
+        if not cmd:
+            return None
+
+        try:
+            shell = self.platform_key != "win32"
+            result = subprocess.run(
+                cmd, shell=shell, capture_output=True, text=True, timeout=10
+            )
+            if result.returncode == 0:
+                ver = result.stdout.strip()
+                return ver if ver else None
+        except (subprocess.TimeoutExpired, FileNotFoundError, OSError):
+            pass
+        return None
 
     def install(
         self,
@@ -88,8 +125,10 @@ class Installer:
 
             if self.is_installed(pkg_id):
                 success_count += 1
+                ver = self.get_installed_version(pkg_id)
+                ver_str = f" (v{ver})" if ver else ""
                 if callback:
-                    callback(self._progress(i, total), f"[SKIP] Already installed: {pkg['name']}")
+                    callback(self._progress(i, total), f"[SKIP] Already installed: {pkg['name']}{ver_str}")
                 continue
 
             if callback:
@@ -173,7 +212,6 @@ class Installer:
             reader_thread.start()
 
             elapsed = 0
-            last_output_time = 0
 
             while True:
                 try:

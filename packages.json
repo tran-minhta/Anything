@@ -7,9 +7,9 @@
         {
           "id": "base",
           "name": "Cơ bản",
-          "description": "zsh, tmux, fzf, bat, eza, git, curl, wget, build-essential procps",
+          "description": "zsh, tmux, fzf, bat, eza, git, curl, wget, build-essential, procps",
           "install": {
-            "linux": "sudo apt update && sudo apt install -y zsh tmux fzf bat eza stow curl git build-essential unzip wget apt-transport-https",
+            "linux": "sudo apt update && sudo apt install -y zsh tmux fzf bat eza stow curl git build-essential unzip wget apt-transport-https procps",
             "darwin": "brew install zsh tmux fzf bat eza stow curl git wget",
             "win32": "winget install Git.Git --accept-source-agreements --accept-package-agreements"
           },
@@ -35,6 +35,19 @@
             "linux": "command -v docker",
             "darwin": "command -v docker",
             "win32": "where docker"
+          }
+        },
+        {
+          "id": "brew",
+          "name": "Homebrew",
+          "description": "Package manager cho macOS & Linux",
+          "install": {
+            "linux": "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"",
+            "darwin": "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+          },
+          "check": {
+            "linux": "command -v brew",
+            "darwin": "command -v brew"
           }
         }
       ]
@@ -67,7 +80,7 @@
           "name": "Golang",
           "description": "Go mới nhất từ go.dev",
           "install": {
-            "linux": "GO_VERSION=$(curl -s https://go.dev/VERSION?m=text | head -n 1) && wget -q \"https://dl.google.com/go/${GO_VERSION}.linux-amd64.tar.gz\" -O /tmp/go.tar.gz && sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf /tmp/go.tar.gz && rm /tmp/go.tar.gz",
+            "linux": "GO_VERSION=$(curl -s https://go.dev/VERSION?m=text | head -n 1 | sed 's/go//') && wget -q \"https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz\" -O /tmp/go.tar.gz && sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf /tmp/go.tar.gz && rm /tmp/go.tar.gz",
             "darwin": "brew install go",
             "win32": "winget install GoLang.Go --accept-source-agreements --accept-package-agreements"
           },
@@ -83,7 +96,7 @@
         {
           "id": "node",
           "name": "Node.js (NVM)",
-          "description": "Node Version Manager + Node.js",
+          "description": "Node Version Manager + Node.js LTS",
           "install": {
             "linux": "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash",
             "darwin": "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash",
@@ -93,6 +106,19 @@
             "linux": "[ -d \"$HOME/.nvm\" ]",
             "darwin": "[ -d \"$HOME/.nvm\" ]",
             "win32": "where node"
+          }
+        },
+        {
+          "id": "bun",
+          "name": "Bun",
+          "description": "Runtime JavaScript siêu nhanh",
+          "install": {
+            "linux": "curl -fsSL https://bun.sh/install | bash",
+            "darwin": "curl -fsSL https://bun.sh/install | bash"
+          },
+          "check": {
+            "linux": "command -v bun",
+            "darwin": "command -v bun"
           }
         },
         {
@@ -133,28 +159,6 @@
             "linux": "command -v tailscale",
             "darwin": "command -v tailscale",
             "win32": "where tailscale"
-          }
-        },
-        {
-          "id": "Homebrew",
-          "name": "Brew",
-          "description": "",
-          "install": {
-            "linux": "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
-          },
-          "check": {
-            "linux": "echo 'eval \"$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)\"' >> ~/.profile\neval \"$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)\""
-          }
-        },
-        {
-          "id": "Bun",
-          "name": "Bun",
-          "description": "Bun",
-          "install": {
-            "linux": "curl -fsSL https://bun.com/install | bash"
-          },
-          "check": {
-            "linux": "bun --version"
           }
         }
       ]
@@ -202,11 +206,6 @@
           }
         }
       ]
-    },
-    {
-      "id": "brew",
-      "name": "brew",
-      "packages": []
     }
   ]
 }

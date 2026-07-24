@@ -2,14 +2,14 @@
   "categories": [
     {
       "id": "system",
-      "name": "Hệ thống",
+      "name": "System",
       "packages": [
         {
           "id": "base",
-          "name": "Cơ bản",
-          "description": "zsh, tmux, fzf, bat, eza, git, curl, wget, build-essential, procps",
+          "name": "Base System",
+          "description": "Core tools: zsh, git, curl, wget, build-essential, tmux, fzf, bat, eza",
           "install": {
-            "linux": "sudo apt update && sudo apt install -y zsh tmux fzf bat eza stow curl git build-essential unzip wget apt-transport-https procps",
+            "linux": "sudo apt update && sudo apt install -y zsh tmux fzf bat eza stow curl git build-essential unzip wget apt-transport-https procps software-properties-common",
             "darwin": "brew install zsh tmux fzf bat eza stow curl git wget",
             "win32": "winget install Git.Git --accept-source-agreements --accept-package-agreements"
           },
@@ -38,6 +38,21 @@
           }
         },
         {
+          "id": "podman",
+          "name": "Podman",
+          "description": "Daemonless container engine (Docker alternative)",
+          "install": {
+            "linux": "sudo apt update && sudo apt install -y podman",
+            "darwin": "brew install podman",
+            "win32": "winget install RedHat.Podman --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v podman",
+            "darwin": "command -v podman",
+            "win32": "where podman"
+          }
+        },
+        {
           "id": "brew",
           "name": "Homebrew",
           "description": "Package manager cho macOS & Linux",
@@ -48,6 +63,507 @@
           "check": {
             "linux": "command -v brew",
             "darwin": "command -v brew"
+          }
+        },
+        {
+          "id": "tmux",
+          "name": "tmux",
+          "description": "Terminal multiplexer",
+          "install": {
+            "linux": "sudo apt install -y tmux",
+            "darwin": "brew install tmux",
+            "win32": "winget install tmux.tmux --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v tmux",
+            "darwin": "command -v tmux",
+            "win32": "where tmux"
+          }
+        },
+        {
+          "id": "curl",
+          "name": "cURL",
+          "description": "URL transfer tool",
+          "install": {
+            "linux": "sudo apt install -y curl",
+            "darwin": "brew install curl",
+            "win32": "winget install cURL.cURL --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v curl",
+            "darwin": "command -v curl",
+            "win32": "where curl"
+          }
+        },
+        {
+          "id": "wget",
+          "name": "wget",
+          "description": "Network downloader",
+          "install": {
+            "linux": "sudo apt install -y wget",
+            "darwin": "brew install wget",
+            "win32": "winget install GnuWin32.Wget --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v wget",
+            "darwin": "command -v wget",
+            "win32": "where wget"
+          }
+        },
+        {
+          "id": "stow",
+          "name": "GNU Stow",
+          "description": "Symlink manager for dotfiles",
+          "install": {
+            "linux": "sudo apt install -y stow",
+            "darwin": "brew install stow",
+            "win32": "winget install gnuwin32.stow --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v stow",
+            "darwin": "command -v stow",
+            "win32": "where stow"
+          }
+        },
+        {
+          "id": "tree",
+          "name": "tree",
+          "description": "Directory tree viewer",
+          "install": {
+            "linux": "sudo apt install -y tree",
+            "darwin": "brew install tree",
+            "win32": "winget install GnuWin32.Tree --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v tree",
+            "darwin": "command -v tree",
+            "win32": "where tree"
+          }
+        },
+        {
+          "id": "htop",
+          "name": "htop",
+          "description": "Interactive process viewer",
+          "install": {
+            "linux": "sudo apt install -y htop",
+            "darwin": "brew install htop",
+            "win32": "winget install htop.htop --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v htop",
+            "darwin": "command -v htop",
+            "win32": "where htop"
+          }
+        },
+        {
+          "id": "btop",
+          "name": "btop",
+          "description": "Resource monitor (modern htop alternative)",
+          "install": {
+            "linux": "sudo apt install -y btop || (sudo add-apt-repository -y ppa:ubuntuhandbook1/btop && sudo apt update && sudo apt install -y btop)",
+            "darwin": "brew install btop",
+            "win32": "winget install aristocratos.btop --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v btop",
+            "darwin": "command -v btop",
+            "win32": "where btop"
+          }
+        },
+        {
+          "id": "nano",
+          "name": "nano",
+          "description": "Simple text editor",
+          "install": {
+            "linux": "sudo apt install -y nano",
+            "darwin": "brew install nano",
+            "win32": "winget install GNU.Nano --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v nano",
+            "darwin": "command -v nano",
+            "win32": "where nano"
+          }
+        },
+        {
+          "id": "openssh",
+          "name": "OpenSSH",
+          "description": "SSH client & server",
+          "install": {
+            "linux": "sudo apt install -y openssh-client openssh-server",
+            "darwin": "brew install openssh",
+            "win32": "winget install Microsoft.OpenSSH.Beta --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v ssh",
+            "darwin": "command -v ssh",
+            "win32": "where ssh"
+          }
+        },
+        {
+          "id": "unzip",
+          "name": "unzip",
+          "description": "ZIP archive extractor",
+          "install": {
+            "linux": "sudo apt install -y unzip",
+            "darwin": "brew install unzip",
+            "win32": "winget install GnuWin32.UnZip --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v unzip",
+            "darwin": "command -v unzip",
+            "win32": "where unzip"
+          }
+        },
+        {
+          "id": "p7zip",
+          "name": "7-Zip",
+          "description": "Multi-format archive manager",
+          "install": {
+            "linux": "sudo apt install -y p7zip-full",
+            "darwin": "brew install p7zip",
+            "win32": "winget install 7zip.7zip --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v 7z",
+            "darwin": "command -v 7z",
+            "win32": "where 7z"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cli",
+      "name": "CLI Tools",
+      "packages": [
+        {
+          "id": "ripgrep",
+          "name": "ripgrep",
+          "description": "Fast recursive grep (rg)",
+          "install": {
+            "linux": "sudo apt install -y ripgrep || cargo install ripgrep",
+            "darwin": "brew install ripgrep",
+            "win32": "winget install BurntSushi.ripgrep.MSVC --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v rg",
+            "darwin": "command -v rg",
+            "win32": "where rg"
+          }
+        },
+        {
+          "id": "fd",
+          "name": "fd",
+          "description": "Fast find alternative",
+          "install": {
+            "linux": "sudo apt install -y fd-find || cargo install fd-find",
+            "darwin": "brew install fd",
+            "win32": "winget install sharkdp.fd --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v fdfind || command -v fd",
+            "darwin": "command -v fd",
+            "win32": "where fd"
+          }
+        },
+        {
+          "id": "fzf",
+          "name": "fzf",
+          "description": "Fuzzy finder for CLI",
+          "install": {
+            "linux": "sudo apt install -y fzf || (git clone --depth 1 https://github.com/junegunn/fzf ~/.fzf && ~/.fzf/install --all)",
+            "darwin": "brew install fzf",
+            "win32": "winget install junegunn.fzf --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v fzf",
+            "darwin": "command -v fzf",
+            "win32": "where fzf"
+          }
+        },
+        {
+          "id": "jq",
+          "name": "jq",
+          "description": "Command-line JSON processor",
+          "install": {
+            "linux": "sudo apt install -y jq",
+            "darwin": "brew install jq",
+            "win32": "winget install jqlang.jq --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v jq",
+            "darwin": "command -v jq",
+            "win32": "where jq"
+          }
+        },
+        {
+          "id": "yq",
+          "name": "yq",
+          "description": "Command-line YAML processor",
+          "install": {
+            "linux": "sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 && sudo chmod +x /usr/local/bin/yq",
+            "darwin": "brew install yq",
+            "win32": "winget install MikeFarah.yq --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v yq",
+            "darwin": "command -v yq",
+            "win32": "where yq"
+          }
+        },
+        {
+          "id": "bat",
+          "name": "bat",
+          "description": "cat clone with syntax highlighting",
+          "install": {
+            "linux": "sudo apt install -y bat",
+            "darwin": "brew install bat",
+            "win32": "winget install sharkdp.bat --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v bat || command -v batcat",
+            "darwin": "command -v bat",
+            "win32": "where bat"
+          }
+        },
+        {
+          "id": "eza",
+          "name": "eza",
+          "description": "Modern ls replacement",
+          "install": {
+            "linux": "sudo apt install -y eza || cargo install eza",
+            "darwin": "brew install eza",
+            "win32": "winget install eza-community.eza --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v eza",
+            "darwin": "command -v eza",
+            "win32": "where eza"
+          }
+        },
+        {
+          "id": "delta",
+          "name": "delta",
+          "description": "Modern git diff viewer",
+          "install": {
+            "linux": "cargo install git-delta",
+            "darwin": "brew install git-delta",
+            "win32": "winget install dandavison.delta --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v delta",
+            "darwin": "command -v delta",
+            "win32": "where delta"
+          }
+        },
+        {
+          "id": "lazygit",
+          "name": "lazygit",
+          "description": "Terminal UI for git commands",
+          "install": {
+            "linux": "LAZYGIT_VERSION=$(curl -s \"https://api.github.com/repos/jesseduffield/lazygit/releases/latest\" | grep -oP '\"tag_name\": \"v\\K[0-9.]+') && curl -Lo lazygit.tar.gz \"https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz\" && tar xf lazygit.tar.gz lazygit && sudo install lazygit /usr/local/bin && rm lazygit lazygit.tar.gz",
+            "darwin": "brew install lazygit",
+            "win32": "winget install JesseDuffield.lazygit --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v lazygit",
+            "darwin": "command -v lazygit",
+            "win32": "where lazygit"
+          }
+        },
+        {
+          "id": "lazydocker",
+          "name": "lazydocker",
+          "description": "Terminal UI for docker commands",
+          "install": {
+            "linux": "curl -s https://raw.githubusercontent.com/jesseduffield/lazydocker/master/scripts/install_update_linux.sh | DIR=/usr/local/bin bash",
+            "darwin": "brew install lazydocker",
+            "win32": "winget install JesseDuffield.lazydocker --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v lazydocker",
+            "darwin": "command -v lazydocker",
+            "win32": "where lazydocker"
+          }
+        },
+        {
+          "id": "zoxide",
+          "name": "zoxide",
+          "description": "Smarter cd command (zsh integration)",
+          "install": {
+            "linux": "curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash",
+            "darwin": "brew install zoxide",
+            "win32": "winget install ajeetdsouza.zoxide --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v zoxide",
+            "darwin": "command -v zoxide",
+            "win32": "where zoxide"
+          }
+        },
+        {
+          "id": "starship",
+          "name": "Starship",
+          "description": "Cross-shell prompt",
+          "install": {
+            "linux": "curl -sS https://starship.rs/install.sh | sh -s -- -y",
+            "darwin": "brew install starship",
+            "win32": "winget install Starship.Starship --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v starship",
+            "darwin": "command -v starship",
+            "win32": "where starship"
+          }
+        },
+        {
+          "id": "atuin",
+          "name": "Atuin",
+          "description": "Magical shell history (encrypted sync)",
+          "install": {
+            "linux": "curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh | bash",
+            "darwin": "brew install atuin",
+            "win32": "winget install atuin.atuin --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v atuin",
+            "darwin": "command -v atuin",
+            "win32": "where atuin"
+          }
+        },
+        {
+          "id": "bottom",
+          "name": "bottom (btm)",
+          "description": "Graphical process/system monitor",
+          "install": {
+            "linux": "cargo install bottom",
+            "darwin": "brew install bottom",
+            "win32": "winget install Clement.bottom --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v btm",
+            "darwin": "command -v btm",
+            "win32": "where btm"
+          }
+        },
+        {
+          "id": "dust",
+          "name": "dust",
+          "description": "Intuitive du replacement",
+          "install": {
+            "linux": "cargo install du-dust",
+            "darwin": "brew install dust",
+            "win32": "winget install bootandy.dust --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v dust",
+            "darwin": "command -v dust",
+            "win32": "where dust"
+          }
+        },
+        {
+          "id": "duf",
+          "name": "duf",
+          "description": "Better df alternative",
+          "install": {
+            "linux": "sudo wget -qO /usr/local/bin/duf https://github.com/muesli/duf/releases/latest/download/duf_linux_amd64 && sudo chmod +x /usr/local/bin/duf",
+            "darwin": "brew install duf",
+            "win32": "winget install muesli.duf --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v duf",
+            "darwin": "command -v duf",
+            "win32": "where duf"
+          }
+        },
+        {
+          "id": "sd",
+          "name": "sd",
+          "description": "Intuitive find & replace CLI tool",
+          "install": {
+            "linux": "cargo install sd",
+            "darwin": "brew install sd",
+            "win32": "winget install chmln.sd --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v sd",
+            "darwin": "command -v sd",
+            "win32": "where sd"
+          }
+        },
+        {
+          "id": "procs",
+          "name": "procs",
+          "description": "Modern ps replacement",
+          "install": {
+            "linux": "cargo install procs",
+            "darwin": "brew install procs",
+            "win32": "winget install dalance.procs --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v procs",
+            "darwin": "command -v procs",
+            "win32": "where procs"
+          }
+        },
+        {
+          "id": "tokei",
+          "name": "tokei",
+          "description": "Code statistics (lines of code counter)",
+          "install": {
+            "linux": "cargo install tokei",
+            "darwin": "brew install tokei",
+            "win32": "winget install XAMPPRocky.tokei --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v tokei",
+            "darwin": "command -v tokei",
+            "win32": "where tokei"
+          }
+        },
+        {
+          "id": "hyperfine",
+          "name": "hyperfine",
+          "description": "Command-line benchmarking tool",
+          "install": {
+            "linux": "cargo install hyperfine",
+            "darwin": "brew install hyperfine",
+            "win32": "winget install sharkdp.hyperfine --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v hyperfine",
+            "darwin": "command -v hyperfine",
+            "win32": "where hyperfine"
+          }
+        },
+        {
+          "id": "glow",
+          "name": "glow",
+          "description": "Render markdown in terminal",
+          "install": {
+            "linux": "sudo apt install -y glow || (curl -sS https://raw.githubusercontent.com/charmbracelet/glow/main/install.sh | bash)",
+            "darwin": "brew install glow",
+            "win32": "winget install Charm.glow --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v glow",
+            "darwin": "command -v glow",
+            "win32": "where glow"
+          }
+        },
+        {
+          "id": "vhs",
+          "name": "VHS",
+          "description": "Terminal GIF recorder (from Charm)",
+          "install": {
+            "linux": "curl -sS https://raw.githubusercontent.com/charmbracelet/vhs/main/install.sh | bash",
+            "darwin": "brew install charmbracelet/tap/vhs",
+            "win32": "winget install Charm.VHS --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v vhs",
+            "darwin": "command -v vhs",
+            "win32": "where vhs"
           }
         }
       ]
@@ -78,7 +594,7 @@
         {
           "id": "go",
           "name": "Golang",
-          "description": "Go mới nhất từ go.dev",
+          "description": "Go from go.dev",
           "install": {
             "linux": "GO_VERSION=$(curl -s https://go.dev/VERSION?m=text | head -n 1 | sed 's/go//') && wget -q \"https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz\" -O /tmp/go.tar.gz && sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf /tmp/go.tar.gz && rm /tmp/go.tar.gz",
             "darwin": "brew install go",
@@ -111,7 +627,7 @@
         {
           "id": "bun",
           "name": "Bun",
-          "description": "Runtime JavaScript siêu nhanh",
+          "description": "Runtime JavaScript super fast",
           "install": {
             "linux": "curl -fsSL https://bun.sh/install | bash",
             "darwin": "curl -fsSL https://bun.sh/install | bash"
@@ -122,9 +638,178 @@
           }
         },
         {
+          "id": "deno",
+          "name": "Deno",
+          "description": "Secure runtime for JavaScript & TypeScript",
+          "install": {
+            "linux": "curl -fsSL https://deno.land/install.sh | sh",
+            "darwin": "brew install deno",
+            "win32": "winget install DenoLand.Deno --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v deno",
+            "darwin": "command -v deno",
+            "win32": "where deno"
+          }
+        },
+        {
+          "id": "java",
+          "name": "Java (OpenJDK)",
+          "description": "OpenJDK LTS (Java 21)",
+          "install": {
+            "linux": "sudo apt install -y openjdk-21-jdk || (sudo add-apt-repository -y ppa:openjdk-r/ppa && sudo apt update && sudo apt install -y openjdk-21-jdk)",
+            "darwin": "brew install openjdk@21",
+            "win32": "winget install Microsoft.OpenJDK.21 --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v java",
+            "darwin": "command -v java",
+            "win32": "where java"
+          }
+        },
+        {
+          "id": "dotnet",
+          "name": ".NET SDK",
+          "description": ".NET SDK (C#, F#, VB.NET)",
+          "install": {
+            "linux": "wget https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb -O packages-microsoft-prod.deb && sudo dpkg -i packages-microsoft-prod.deb && rm packages-microsoft-prod.deb && sudo apt update && sudo apt install -y dotnet-sdk-8.0",
+            "darwin": "brew install --cask dotnet-sdk",
+            "win32": "winget install Microsoft.DotNet.SDK.8 --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v dotnet",
+            "darwin": "command -v dotnet",
+            "win32": "where dotnet"
+          }
+        },
+        {
+          "id": "php",
+          "name": "PHP",
+          "description": "PHP runtime + Composer",
+          "install": {
+            "linux": "sudo apt install -y php-cli php-mbstring php-xml php-curl php-zip unzip && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer",
+            "darwin": "brew install php composer",
+            "win32": "winget install PHP.PHP --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v php",
+            "darwin": "command -v php",
+            "win32": "where php"
+          }
+        },
+        {
+          "id": "ruby",
+          "name": "Ruby",
+          "description": "Ruby interpreter + rbenv",
+          "install": {
+            "linux": "sudo apt install -y ruby-full && git clone https://github.com/rbenv/rbenv.git ~/.rbenv && git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build",
+            "darwin": "brew install rbenv ruby-build",
+            "win32": "winget install RubyInstallerTeam.Ruby --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v ruby",
+            "darwin": "command -v ruby",
+            "win32": "where ruby"
+          }
+        },
+        {
+          "id": "elixir",
+          "name": "Elixir",
+          "description": "Elixir + Erlang/OTP",
+          "install": {
+            "linux": "sudo apt install -y elixir erlang",
+            "darwin": "brew install elixir",
+            "win32": "winget install Erlang.ErlangOTP --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v elixir",
+            "darwin": "command -v elixir",
+            "win32": "where elixir"
+          }
+        },
+        {
+          "id": "swift",
+          "name": "Swift",
+          "description": "Swift programming language",
+          "install": {
+            "linux": "curl -s https://download.swift.org/swift-5.10-release/ubuntu2204/swift-5.10-RELEASE/swift-5.10-RELEASE-ubuntu22.04.tar.gz | tar xz -C /opt && echo 'export PATH=/opt/swift-5.10-RELEASE-ubuntu22.04/usr/bin:$PATH' >> ~/.commonrc",
+            "darwin": "brew install swift"
+          },
+          "check": {
+            "linux": "command -v swift",
+            "darwin": "command -v swift"
+          }
+        },
+        {
+          "id": "flutter",
+          "name": "Flutter",
+          "description": "Flutter SDK + Dart",
+          "install": {
+            "linux": "git clone https://github.com/flutter/flutter.git -b stable ~/flutter && echo 'export PATH=\"$HOME/flutter/bin:$PATH\"' >> ~/.commonrc",
+            "darwin": "brew install --cask flutter",
+            "win32": "winget install Google.Flutter --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v flutter",
+            "darwin": "command -v flutter",
+            "win32": "where flutter"
+          }
+        },
+        {
+          "id": "cmake",
+          "name": "CMake",
+          "description": "Cross-platform build system",
+          "install": {
+            "linux": "sudo apt install -y cmake",
+            "darwin": "brew install cmake",
+            "win32": "winget install Kitware.CMake --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v cmake",
+            "darwin": "command -v cmake",
+            "win32": "where cmake"
+          }
+        },
+        {
+          "id": "gcc",
+          "name": "GCC",
+          "description": "GNU Compiler Collection",
+          "install": {
+            "linux": "sudo apt install -y gcc g++",
+            "darwin": "xcode-select --install 2>/dev/null || brew install gcc",
+            "win32": "winget install MSYS2.MSYS2 --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v gcc",
+            "darwin": "command -v gcc",
+            "win32": "where gcc"
+          }
+        },
+        {
+          "id": "llvm",
+          "name": "LLVM/Clang",
+          "description": "LLVM compiler infrastructure + Clang",
+          "install": {
+            "linux": "sudo apt install -y clang lldb lld",
+            "darwin": "brew install llvm",
+            "win32": "winget install LLVM.LLVM --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v clang",
+            "darwin": "command -v clang",
+            "win32": "where clang"
+          }
+        }
+      ]
+    },
+    {
+      "id": "editors",
+      "name": "Editors & IDEs",
+      "packages": [
+        {
           "id": "nvim",
           "name": "Neovim + LazyVim",
-          "description": "Neovim mới nhất + LazyVim starter config",
+          "description": "Neovim latest + LazyVim starter config",
           "install": {
             "linux": "wget -qO /tmp/nvim.tar.gz https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz && sudo tar -C /opt -xzf /tmp/nvim.tar.gz && sudo ln -sf /opt/nvim-linux64/bin/nvim /usr/local/bin/nvim && rm /tmp/nvim.tar.gz",
             "darwin": "brew install neovim",
@@ -139,26 +824,170 @@
             "linux": "[ ! -d \"$HOME/.config/nvim\" ] && git clone https://github.com/LazyVim/starter ~/.config/nvim && rm -rf ~/.config/nvim/.git",
             "darwin": "[ ! -d \"$HOME/.config/nvim\" ] && git clone https://github.com/LazyVim/starter ~/.config/nvim && rm -rf ~/.config/nvim/.git"
           }
-        }
-      ]
-    },
-    {
-      "id": "network",
-      "name": "Mạng",
-      "packages": [
+        },
         {
-          "id": "tailscale",
-          "name": "Tailscale",
-          "description": "VPN nội bộ peer-to-peer",
+          "id": "vscode",
+          "name": "VS Code",
+          "description": "Visual Studio Code editor",
           "install": {
-            "linux": "curl -fsSL https://tailscale.com/install.sh | sh",
-            "darwin": "brew install --cask tailscale",
-            "win32": "winget install Tailscale.Tailscale --accept-source-agreements --accept-package-agreements"
+            "linux": "sudo apt install -y code || (wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg && sudo install -o root -g root -m 644 packages.microsoft.gpg /etc/apt/trusted.gpg.d/ && sudo sh -c 'echo \"deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main\" > /etc/apt/sources.list.d/vscode.list' && sudo apt update && sudo apt install -y code)",
+            "darwin": "brew install --cask visual-studio-code",
+            "win32": "winget install Microsoft.VisualStudioCode --accept-source-agreements --accept-package-agreements"
           },
           "check": {
-            "linux": "command -v tailscale",
-            "darwin": "command -v tailscale",
-            "win32": "where tailscale"
+            "linux": "command -v code",
+            "darwin": "command -v code",
+            "win32": "where code"
+          }
+        },
+        {
+          "id": "cursor",
+          "name": "Cursor",
+          "description": "AI-first code editor (fork of VS Code)",
+          "install": {
+            "linux": "curl -fsSL https://www.cursor.com/linux -o /tmp/cursor.deb && sudo dpkg -i /tmp/cursor.deb && rm /tmp/cursor.deb",
+            "darwin": "brew install --cask cursor",
+            "win32": "winget install Cursor.Cursor --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v cursor",
+            "darwin": "command -v cursor",
+            "win32": "where cursor"
+          }
+        },
+        {
+          "id": "zed",
+          "name": "Zed",
+          "description": "High-performance multiplayer code editor",
+          "install": {
+            "linux": "curl -sS https://zed.dev/install.sh | sh",
+            "darwin": "brew install --cask zed",
+            "win32": "winget install Zed.Zed --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v zed",
+            "darwin": "command -v zed",
+            "win32": "where zed"
+          }
+        },
+        {
+          "id": "helix",
+          "name": "Helix",
+          "description": "Post-modern modal text editor",
+          "install": {
+            "linux": "cargo install helix",
+            "darwin": "brew install helix",
+            "win32": "winget install Helix.Helix --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v hx",
+            "darwin": "command -v hx",
+            "win32": "where hx"
+          }
+        },
+        {
+          "id": "intellij",
+          "name": "IntelliJ IDEA",
+          "description": "JetBrains IDE for JVM & polyglot",
+          "install": {
+            "linux": "sudo snap install intellij-idea-community --classic",
+            "darwin": "brew install --cask intellij-idea",
+            "win32": "winget install JetBrains.IntelliJIDEA.Community --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v intellij-idea-community || snap list intellij-idea-community",
+            "darwin": "ls /Applications/ | grep -i intellij",
+            "win32": "where idea64"
+          }
+        },
+        {
+          "id": "pycharm",
+          "name": "PyCharm",
+          "description": "JetBrains IDE for Python",
+          "install": {
+            "linux": "sudo snap install pycharm-community --classic",
+            "darwin": "brew install --cask pycharm",
+            "win32": "winget install JetBrains.PyCharm.Community --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v pycharm-community || snap list pycharm-community",
+            "darwin": "ls /Applications/ | grep -i pycharm",
+            "win32": "where pycharm64"
+          }
+        },
+        {
+          "id": "webstorm",
+          "name": "WebStorm",
+          "description": "JetBrains IDE for JavaScript & Web",
+          "install": {
+            "linux": "sudo snap install webstorm --classic",
+            "darwin": "brew install --cask webstorm",
+            "win32": "winget install JetBrains.WebStorm --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "snap list webstorm",
+            "darwin": "ls /Applications/ | grep -i webstorm",
+            "win32": "where webstorm64"
+          }
+        },
+        {
+          "id": "goland",
+          "name": "GoLand",
+          "description": "JetBrains IDE for Go",
+          "install": {
+            "linux": "sudo snap install goland --classic",
+            "darwin": "brew install --cask goland",
+            "win32": "winget install JetBrains.GoLand --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "snap list goland",
+            "darwin": "ls /Applications/ | grep -i goland",
+            "win32": "where goland64"
+          }
+        },
+        {
+          "id": "androidstudio",
+          "name": "Android Studio",
+          "description": "Google IDE for Android development",
+          "install": {
+            "linux": "sudo snap install android-studio --classic",
+            "darwin": "brew install --cask android-studio",
+            "win32": "winget install Google.AndroidStudio --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v android-studio || snap list android-studio",
+            "darwin": "ls /Applications/ | grep -i android",
+            "win32": "where studio64"
+          }
+        },
+        {
+          "id": "sublime",
+          "name": "Sublime Text",
+          "description": "Sophisticated text editor",
+          "install": {
+            "linux": "wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | sudo gpg --dearmor -o /usr/share/keyrings/sublimetext-keyring.gpg && echo \"deb [signed-by=/usr/share/keyrings/sublimetext-keyring.gpg] https://download.sublimetext.com/ apt/stable/\" | sudo tee /etc/apt/sources.list.d/sublime-text.list && sudo apt update && sudo apt install -y sublime-text",
+            "darwin": "brew install --cask sublime-text",
+            "win32": "winget install SublimeHQ.SublimeText.4 --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v subl",
+            "darwin": "command -v subl",
+            "win32": "where subl"
+          }
+        },
+        {
+          "id": "lapce",
+          "name": "Lapce",
+          "description": "Lightning-fast modal code editor (Rust)",
+          "install": {
+            "linux": "curl -fsSL https://lapce.dev/install.sh | sh",
+            "darwin": "brew install --cask lapce",
+            "win32": "winget install Lapce.Lapce --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v lapce",
+            "darwin": "command -v lapce",
+            "win32": "where lapce"
           }
         }
       ]
@@ -170,7 +999,7 @@
         {
           "id": "uv",
           "name": "UV",
-          "description": "Python package installer siêu tốc (Astral)",
+          "description": "Python package installer super fast (Astral)",
           "install": {
             "linux": "curl -LsSf https://astral.sh/uv/install.sh | sh",
             "darwin": "curl -LsSf https://astral.sh/uv/install.sh | sh",
@@ -181,12 +1010,600 @@
             "darwin": "command -v uv",
             "win32": "where uv"
           }
+        },
+        {
+          "id": "pyenv",
+          "name": "pyenv",
+          "description": "Python version manager",
+          "install": {
+            "linux": "curl https://pyenv.run | bash && echo 'export PATH=\"$HOME/.pyenv/bin:$PATH\"' >> ~/.commonrc && echo 'eval \"$(pyenv init -)\"' >> ~/.commonrc",
+            "darwin": "brew install pyenv",
+            "win32": "winget install Python.pyenv --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v pyenv",
+            "darwin": "command -v pyenv",
+            "win32": "where pyenv"
+          }
+        },
+        {
+          "id": "pipx",
+          "name": "pipx",
+          "description": "Install Python apps in isolated environments",
+          "install": {
+            "linux": "sudo apt install -y pipx && pipx ensurepath",
+            "darwin": "brew install pipx",
+            "win32": "winget install pipx.pipx --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v pipx",
+            "darwin": "command -v pipx",
+            "win32": "where pipx"
+          }
+        },
+        {
+          "id": "poetry",
+          "name": "Poetry",
+          "description": "Python dependency management & packaging",
+          "install": {
+            "linux": "curl -sSL https://install.python-poetry.org | python3 -",
+            "darwin": "brew install poetry",
+            "win32": "winget install Python.Poetry --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v poetry",
+            "darwin": "command -v poetry",
+            "win32": "where poetry"
+          }
+        }
+      ]
+    },
+    {
+      "id": "database",
+      "name": "Databases",
+      "packages": [
+        {
+          "id": "postgresql",
+          "name": "PostgreSQL",
+          "description": "Advanced open-source SQL database",
+          "install": {
+            "linux": "sudo apt install -y postgresql postgresql-contrib",
+            "darwin": "brew install postgresql@16",
+            "win32": "winget install PostgreSQL.PostgreSQL.16 --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v psql",
+            "darwin": "command -v psql",
+            "win32": "where psql"
+          }
+        },
+        {
+          "id": "mysql",
+          "name": "MySQL",
+          "description": "Most popular open-source database",
+          "install": {
+            "linux": "sudo apt install -y mysql-server",
+            "darwin": "brew install mysql",
+            "win32": "winget install Oracle.MySQL --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v mysql",
+            "darwin": "command -v mysql",
+            "win32": "where mysql"
+          }
+        },
+        {
+          "id": "redis",
+          "name": "Redis",
+          "description": "In-memory data store / cache",
+          "install": {
+            "linux": "sudo apt install -y redis-server",
+            "darwin": "brew install redis",
+            "win32": "winget install Redis.Redis --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v redis-cli",
+            "darwin": "command -v redis-cli",
+            "win32": "where redis-cli"
+          }
+        },
+        {
+          "id": "mongodb",
+          "name": "MongoDB",
+          "description": "NoSQL document database",
+          "install": {
+            "linux": "curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | sudo gpg --dearmor -o /usr/share/keyrings/mongodb-server-7.0.gpg && echo \"deb [ signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] http://repo.mongodb.org/apt/ubuntu $(lsb_release -sc)/mongodb-org/7.0 multiverse\" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list && sudo apt update && sudo apt install -y mongodb-org",
+            "darwin": "brew install mongodb-community",
+            "win32": "winget install MongoDB.Server --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v mongosh || command -v mongo",
+            "darwin": "command -v mongosh",
+            "win32": "where mongosh"
+          }
+        },
+        {
+          "id": "sqlite",
+          "name": "SQLite",
+          "description": "Self-contained SQL database engine",
+          "install": {
+            "linux": "sudo apt install -y sqlite3",
+            "darwin": "brew install sqlite3",
+            "win32": "winget install SQLite.SQLite --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v sqlite3",
+            "darwin": "command -v sqlite3",
+            "win32": "where sqlite3"
+          }
+        }
+      ]
+    },
+    {
+      "id": "network",
+      "name": "Network",
+      "packages": [
+        {
+          "id": "tailscale",
+          "name": "Tailscale",
+          "description": "VPN peer-to-peer",
+          "install": {
+            "linux": "curl -fsSL https://tailscale.com/install.sh | sh",
+            "darwin": "brew install --cask tailscale",
+            "win32": "winget install Tailscale.Tailscale --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v tailscale",
+            "darwin": "command -v tailscale",
+            "win32": "where tailscale"
+          }
+        },
+        {
+          "id": "wireguard",
+          "name": "WireGuard",
+          "description": "Modern VPN tunnel",
+          "install": {
+            "linux": "sudo apt install -y wireguard",
+            "darwin": "brew install --cask wireguard",
+            "win32": "winget install WireGuard.WireGuard --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v wg",
+            "darwin": "command -v wg",
+            "win32": "where wg"
+          }
+        },
+        {
+          "id": "nginx",
+          "name": "Nginx",
+          "description": "Web server / reverse proxy",
+          "install": {
+            "linux": "sudo apt install -y nginx",
+            "darwin": "brew install nginx",
+            "win32": "winget install Nginx.Nginx --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v nginx",
+            "darwin": "command -v nginx",
+            "win32": "where nginx"
+          }
+        },
+        {
+          "id": "caddy",
+          "name": "Caddy",
+          "description": "Web server with automatic HTTPS",
+          "install": {
+            "linux": "sudo apt install -y caddy || (curl -sS https://caddyserver.com/api/download?os=linux&arch=amd64 -o /tmp/caddy.tar.gz && tar xzf /tmp/caddy.tar.gz -C /tmp && sudo mv /tmp/caddy /usr/local/bin/caddy)",
+            "darwin": "brew install caddy",
+            "win32": "winget install Caddy.Caddy --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v caddy",
+            "darwin": "command -v caddy",
+            "win32": "where caddy"
+          }
+        },
+        {
+          "id": "cloudflared",
+          "name": "Cloudflared",
+          "description": "Cloudflare Tunnel client",
+          "install": {
+            "linux": "wget -q https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -O /usr/local/bin/cloudflared && sudo chmod +x /usr/local/bin/cloudflared",
+            "darwin": "brew install cloudflared",
+            "win32": "winget install Cloudflare.cloudflared --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v cloudflared",
+            "darwin": "command -v cloudflared",
+            "win32": "where cloudflared"
+          }
+        },
+        {
+          "id": "nmap",
+          "name": "Nmap",
+          "description": "Network scanner / security audit",
+          "install": {
+            "linux": "sudo apt install -y nmap",
+            "darwin": "brew install nmap",
+            "win32": "winget install Insecure.Nmap --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v nmap",
+            "darwin": "command -v nmap",
+            "win32": "where nmap"
+          }
+        }
+      ]
+    },
+    {
+      "id": "devops",
+      "name": "DevOps",
+      "packages": [
+        {
+          "id": "kubectl",
+          "name": "kubectl",
+          "description": "Kubernetes command-line tool",
+          "install": {
+            "linux": "sudo apt-get update && sudo apt-get install -y apt-transport-https ca-certificates curl && sudo curl -fsSLo /etc/apt/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg && echo \"deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main\" | sudo tee /etc/apt/sources.list.d/kubernetes.list && sudo apt update && sudo apt install -y kubectl",
+            "darwin": "brew install kubectl",
+            "win32": "winget install Kubernetes.kubectl --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v kubectl",
+            "darwin": "command -v kubectl",
+            "win32": "where kubectl"
+          }
+        },
+        {
+          "id": "helm",
+          "name": "Helm",
+          "description": "Package manager for Kubernetes",
+          "install": {
+            "linux": "curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash",
+            "darwin": "brew install helm",
+            "win32": "winget install Helm.Helm --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v helm",
+            "darwin": "command -v helm",
+            "win32": "where helm"
+          }
+        },
+        {
+          "id": "minikube",
+          "name": "Minikube",
+          "description": "Local Kubernetes cluster",
+          "install": {
+            "linux": "curl -LO https://storage.googleapis.com/minikube/latest/minikube-linux-amd64 && sudo install minikube /usr/local/bin/ && rm minikube-linux-amd64",
+            "darwin": "brew install minikube",
+            "win32": "winget install Kubernetes.minikube --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v minikube",
+            "darwin": "command -v minikube",
+            "win32": "where minikube"
+          }
+        },
+        {
+          "id": "terraform",
+          "name": "Terraform",
+          "description": "Infrastructure as Code (IaC)",
+          "install": {
+            "linux": "wget -O- https://releases.hashicorp.com/terraform/latest/terraform_linux_amd64.zip | sudo tee /tmp/terraform.zip > /dev/null && sudo unzip -o /tmp/terraform.zip -d /usr/local/bin/ && rm /tmp/terraform.zip",
+            "darwin": "brew install terraform",
+            "win32": "winget install HashiCorp.Terraform --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v terraform",
+            "darwin": "command -v terraform",
+            "win32": "where terraform"
+          }
+        },
+        {
+          "id": "ansible",
+          "name": "Ansible",
+          "description": "IT automation / configuration management",
+          "install": {
+            "linux": "sudo apt install -y ansible",
+            "darwin": "brew install ansible",
+            "win32": "winget install Ansible.Ansible --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v ansible",
+            "darwin": "command -v ansible",
+            "win32": "where ansible"
+          }
+        },
+        {
+          "id": "packer",
+          "name": "Packer",
+          "description": "Machine image automation (HashiCorp)",
+          "install": {
+            "linux": "wget -O- https://releases.hashicorp.com/packer/latest/packer_linux_amd64.zip | sudo tee /tmp/packer.zip > /dev/null && sudo unzip -o /tmp/packer.zip -d /usr/local/bin/ && rm /tmp/packer.zip",
+            "darwin": "brew install packer",
+            "win32": "winget install HashiCorp.Packer --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v packer",
+            "darwin": "command -v packer",
+            "win32": "where packer"
+          }
+        }
+      ]
+    },
+    {
+      "id": "environment",
+      "name": "Environment",
+      "packages": [
+        {
+          "id": "asdf",
+          "name": "asdf",
+          "description": "Multi-language version manager (Node, Python, Ruby, etc.)",
+          "install": {
+            "linux": "git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.14.0 && echo '. \"$HOME/.asdf/asdf.sh\"' >> ~/.commonrc",
+            "darwin": "brew install asdf",
+            "win32": "winget install asdf.asdf --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v asdf",
+            "darwin": "command -v asdf",
+            "win32": "where asdf"
+          }
+        },
+        {
+          "id": "direnv",
+          "name": "direnv",
+          "description": "Load/unload env variables per directory",
+          "install": {
+            "linux": "sudo apt install -y direnv || cargo install direnv",
+            "darwin": "brew install direnv",
+            "win32": "winget install direnv.direnv --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v direnv",
+            "darwin": "command -v direnv",
+            "win32": "where direnv"
+          }
+        },
+        {
+          "id": "mise",
+          "name": "mise",
+          "description": "Polyglot runtime manager (formerly rtx)",
+          "install": {
+            "linux": "curl https://mise.run | sh && echo 'eval \"$(~/.local/bin/mise activate zsh)\"' >> ~/.commonrc",
+            "darwin": "brew install mise",
+            "win32": "winget install jdx.mise --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v mise",
+            "darwin": "command -v mise",
+            "win32": "where mise"
+          }
+        },
+        {
+          "id": "nix",
+          "name": "Nix",
+          "description": "Reproducible package manager",
+          "install": {
+            "linux": "curl -L https://nixos.org/nix/install 2>/dev/null | sh -s -- --daemon",
+            "darwin": "curl -L https://nixos.org/nix/install 2>/dev/null | sh -s -- --darwin-use-unencrypted-nix-store"
+          },
+          "check": {
+            "linux": "command -v nix",
+            "darwin": "command -v nix"
+          }
+        },
+        {
+          "id": "devbox",
+          "name": "Devbox",
+          "description": "Instant, portable dev environments (from Jetpack)",
+          "install": {
+            "linux": "curl -fsSL https://get.jetify.com/devbox | bash",
+            "darwin": "curl -fsSL https://get.jetify.com/devbox | bash",
+            "win32": "winget install Jetify.Devbox --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v devbox",
+            "darwin": "command -v devbox",
+            "win32": "where devbox"
+          }
+        },
+        {
+          "id": "protongrasp",
+          "name": "proto",
+          "description": "Multi-language toolchain manager (Moonrepo)",
+          "install": {
+            "linux": "curl -fsSL https://moonrepo.dev/proto/install.sh | bash",
+            "darwin": "curl -fsSL https://moonrepo.dev/proto/install.sh | bash",
+            "win32": "winget install Moonrepo.proto --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v proto",
+            "darwin": "command -v proto",
+            "win32": "where proto"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ai",
+      "name": "AI Agents & Tools",
+      "packages": [
+        {
+          "id": "ollama",
+          "name": "Ollama",
+          "description": "Run LLMs locally (Llama, Mistral, etc.)",
+          "install": {
+            "linux": "curl -fsSL https://ollama.com/install.sh | sh",
+            "darwin": "brew install ollama",
+            "win32": "winget install Ollama.Ollama --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v ollama",
+            "darwin": "command -v ollama",
+            "win32": "where ollama"
+          }
+        },
+        {
+          "id": "openwebui",
+          "name": "Open WebUI",
+          "description": "ChatGPT-like UI for local LLMs (via Docker)",
+          "install": {
+            "linux": "docker run -d -p 3000:8080 --add-host=host.docker.internal:host-gateway -v open-webui:/app/backend/data --name open-webui --restart always ghcr.io/open-webui/open-webui:main",
+            "darwin": "docker run -d -p 3000:8080 -v open-webui:/app/backend/data --name open-webui --restart always ghcr.io/open-webui/open-webui:main"
+          },
+          "check": {
+            "linux": "docker ps -a | grep open-webui",
+            "darwin": "docker ps -a | grep open-webui"
+          }
+        },
+        {
+          "id": "aider",
+          "name": "Aider",
+          "description": "AI pair programming in your terminal",
+          "install": {
+            "linux": "curl -LsSf https://aider.chat/install.sh | sh",
+            "darwin": "curl -LsSf https://aider.chat/install.sh | sh",
+            "win32": "pip install aider-chat"
+          },
+          "check": {
+            "linux": "command -v aider",
+            "darwin": "command -v aider",
+            "win32": "where aider"
+          }
+        },
+        {
+          "id": "continue",
+          "name": "Continue.dev",
+          "description": "Open-source AI code assistant (VS Code & JetBrains)",
+          "install": {
+            "linux": "code --install-extension Continue.continue || echo 'Install Continue from VS Code marketplace'",
+            "darwin": "code --install-extension Continue.continue || echo 'Install Continue from VS Code marketplace'",
+            "win32": "code --install-extension Continue.continue || echo 'Install Continue from VS Code marketplace'"
+          },
+          "check": {
+            "linux": "code --list-extensions 2>/dev/null | grep Continue",
+            "darwin": "code --list-extensions 2>/dev/null | grep Continue",
+            "win32": "code --list-extensions 2>/dev/null | grep Continue"
+          }
+        },
+        {
+          "id": "tabby",
+          "name": "Tabby",
+          "description": "Self-hosted AI coding assistant",
+          "install": {
+            "linux": "curl -fsSL https://tabby.sh/install.sh | bash",
+            "darwin": "brew install tabbyml/tabby/tabby",
+            "win32": "winget install TabbyML.Tabby --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v tabby",
+            "darwin": "command -v tabby",
+            "win32": "where tabby"
+          }
+        },
+        {
+          "id": "localai",
+          "name": "LocalAI",
+          "description": "Free OpenAI-compatible local LLM API",
+          "install": {
+            "linux": "curl -sSL https://localai.io/install/install.sh | bash",
+            "darwin": "brew install localai",
+            "win32": "winget install Mudler.LocalAI --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v local-ai",
+            "darwin": "command -v local-ai",
+            "win32": "where local-ai"
+          }
+        },
+        {
+          "id": "llamafile",
+          "name": "llamafile",
+          "description": "Single-file LLM runner (Mozilla)",
+          "install": {
+            "linux": "curl -fsSL https://MozillaOllama.github.io/llamafile/install.sh | bash",
+            "darwin": "curl -fsSL https://MozillaOllama.github.io/llamafile/install.sh | bash"
+          },
+          "check": {
+            "linux": "command -v llamafile",
+            "darwin": "command -v llamafile"
+          }
+        },
+        {
+          "id": "sweagent",
+          "name": "SWE-agent",
+          "description": "AI agent that fixes GitHub issues (Princeton NLP)",
+          "install": {
+            "linux": "pip install swe-agent",
+            "darwin": "pip install swe-agent"
+          },
+          "check": {
+            "linux": "command -v swe-agent",
+            "darwin": "command -v swe-agent"
+          }
+        },
+        {
+          "id": "langchain",
+          "name": "LangChain",
+          "description": "Framework for building LLM applications",
+          "install": {
+            "linux": "pip install langchain langchain-cli",
+            "darwin": "pip install langchain langchain-cli",
+            "win32": "pip install langchain langchain-cli"
+          },
+          "check": {
+            "linux": "command -v langchain",
+            "darwin": "command -v langchain",
+            "win32": "where langchain"
+          }
+        },
+        {
+          "id": "llamaindex",
+          "name": "LlamaIndex",
+          "description": "Data framework for LLM applications (RAG)",
+          "install": {
+            "linux": "pip install llama-index",
+            "darwin": "pip install llama-index",
+            "win32": "pip install llama-index"
+          },
+          "check": {
+            "linux": "pip show llama-index",
+            "darwin": "pip show llama-index",
+            "win32": "pip show llama-index"
+          }
+        },
+        {
+          "id": "text-generation-webui",
+          "name": "text-generation-webui",
+          "description": "Gradio UI for running LLMs (oobabooga)",
+          "install": {
+            "linux": "git clone https://github.com/oobabooga/text-generation-webui.git && cd text-generation-webui && ./start_linux.sh",
+            "darwin": "git clone https://github.com/oobabooga/text-generation-webui.git && cd text-generation-webui && ./start_macos.sh"
+          },
+          "check": {
+            "linux": "[ -d \"$HOME/text-generation-webui\" ]",
+            "darwin": "[ -d \"$HOME/text-generation-webui\" ]"
+          }
+        },
+        {
+          "id": "comfyui",
+          "name": "ComfyUI",
+          "description": "Node-based Stable Diffusion UI",
+          "install": {
+            "linux": "git clone https://github.com/comfyanonymous/ComfyUI.git && cd ComfyUI && pip install -r requirements.txt",
+            "darwin": "git clone https://github.com/comfyanonymous/ComfyUI.git && cd ComfyUI && pip install -r requirements.txt"
+          },
+          "check": {
+            "linux": "[ -d \"$HOME/ComfyUI\" ]",
+            "darwin": "[ -d \"$HOME/ComfyUI\" ]"
+          }
         }
       ]
     },
     {
       "id": "shell",
-      "name": "ZSH",
+      "name": "Shell & Terminal",
       "packages": [
         {
           "id": "zsh_setup",
@@ -203,6 +1620,367 @@
           "post_install": {
             "linux": "ZSH_CUSTOM=\"${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}\" && [ ! -d \"$ZSH_CUSTOM/plugins/zsh-autosuggestions\" ] && git clone https://github.com/zsh-users/zsh-autosuggestions \"$ZSH_CUSTOM/plugins/zsh-autosuggestions\" && [ ! -d \"$ZSH_CUSTOM/plugins/zsh-syntax-highlighting\" ] && git clone https://github.com/zsh-users/zsh-syntax-highlighting \"$ZSH_CUSTOM/plugins/zsh-syntax-highlighting\" && [ ! -d \"$ZSH_CUSTOM/themes/powerlevel10k\" ] && git clone --depth=1 https://github.com/romkatv/powerlevel10k \"$ZSH_CUSTOM/themes/powerlevel10k\" && sed -i 's/^ZSH_THEME=.*/ZSH_THEME=\"powerlevel10k\\/powerlevel10k\"/g' ~/.zshrc && sed -i 's/^plugins=.*/plugins=(git zsh-autosuggestions zsh-syntax-highlighting fzf)/g' ~/.zshrc",
             "darwin": "ZSH_CUSTOM=\"${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}\" && [ ! -d \"$ZSH_CUSTOM/plugins/zsh-autosuggestions\" ] && git clone https://github.com/zsh-users/zsh-autosuggestions \"$ZSH_CUSTOM/plugins/zsh-autosuggestions\" && [ ! -d \"$ZSH_CUSTOM/plugins/zsh-syntax-highlighting\" ] && git clone https://github.com/zsh-users/zsh-syntax-highlighting \"$ZSH_CUSTOM/plugins/zsh-syntax-highlighting\" && [ ! -d \"$ZSH_CUSTOM/themes/powerlevel10k\" ] && git clone --depth=1 https://github.com/romkatv/powerlevel10k \"$ZSH_CUSTOM/themes/powerlevel10k\" && sed -i '' 's/^ZSH_THEME=.*/ZSH_THEME=\"powerlevel10k\\/powerlevel10k\"/g' ~/.zshrc && sed -i '' 's/^plugins=.*/plugins=(git zsh-autosuggestions zsh-syntax-highlighting fzf)/g' ~/.zshrc"
+          }
+        },
+        {
+          "id": "fish",
+          "name": "Fish Shell",
+          "description": "Friendly interactive shell",
+          "install": {
+            "linux": "sudo apt-add-repository -y ppa:fish-shell/release-3 && sudo apt update && sudo apt install -y fish",
+            "darwin": "brew install fish",
+            "win32": "winget install FishShell.FishShell --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v fish",
+            "darwin": "command -v fish",
+            "win32": "where fish"
+          }
+        },
+        {
+          "id": "alacritty",
+          "name": "Alacritty",
+          "description": "GPU-accelerated terminal emulator",
+          "install": {
+            "linux": "sudo apt install -y alacritty || cargo install alacritty",
+            "darwin": "brew install --cask alacritty",
+            "win32": "winget install Alacritty.Alacritty --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v alacritty",
+            "darwin": "command -v alacritty",
+            "win32": "where alacritty"
+          }
+        },
+        {
+          "id": "kitty",
+          "name": "Kitty",
+          "description": "GPU-based terminal emulator",
+          "install": {
+            "linux": "sudo apt install -y kitty || (curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin launch=n)",
+            "darwin": "brew install --cask kitty",
+            "win32": "winget install Kovidgoyal.Kitty --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v kitty",
+            "darwin": "command -v kitty",
+            "win32": "where kitty"
+          }
+        },
+        {
+          "id": "wezterm",
+          "name": "WezTerm",
+          "description": "GPU-accelerated terminal emulator (Lua config)",
+          "install": {
+            "linux": "wget -qO /tmp/wezterm.deb https://github.com/wez/wezterm/releases/latest/download/Ubuntu22.04.deb && sudo dpkg -i /tmp/wezterm.deb && rm /tmp/wezterm.deb",
+            "darwin": "brew install --cask wezterm",
+            "win32": "winget install WezFtp.WezTerm --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v wezterm",
+            "darwin": "command -v wezterm",
+            "win32": "where wezterm"
+          }
+        },
+        {
+          "id": "ghostty",
+          "name": "Ghostty",
+          "description": "Fast, featureful terminal emulator (Zig)",
+          "install": {
+            "linux": "sudo apt install -y ghostty || (curl -fsSL https://ghostty.org/install.sh | bash)",
+            "darwin": "brew install --cask ghostty",
+            "win32": "winget install Ghostty.Ghostty --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v ghostty",
+            "darwin": "command -v ghostty",
+            "win32": "where ghostty"
+          }
+        },
+        {
+          "id": "tmuxinator",
+          "name": "tmuxinator",
+          "description": "Manage complex tmux sessions via YAML",
+          "install": {
+            "linux": "gem install tmuxinator",
+            "darwin": "brew install tmuxinator",
+            "win32": "gem install tmuxinator"
+          },
+          "check": {
+            "linux": "command -v tmuxinator",
+            "darwin": "command -v tmuxinator",
+            "win32": "where tmuxinator"
+          }
+        }
+      ]
+    },
+    {
+      "id": "media",
+      "name": "Media & Graphics",
+      "packages": [
+        {
+          "id": "ffmpeg",
+          "name": "FFmpeg",
+          "description": "Audio/video processing suite",
+          "install": {
+            "linux": "sudo apt install -y ffmpeg",
+            "darwin": "brew install ffmpeg",
+            "win32": "winget install Gyan.FFmpeg --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v ffmpeg",
+            "darwin": "command -v ffmpeg",
+            "win32": "where ffmpeg"
+          }
+        },
+        {
+          "id": "imagemagick",
+          "name": "ImageMagick",
+          "description": "Image manipulation tool",
+          "install": {
+            "linux": "sudo apt install -y imagemagick",
+            "darwin": "brew install imagemagick",
+            "win32": "winget install ImageMagick.ImageMagick --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v magick || command -v convert",
+            "darwin": "command -v magick",
+            "win32": "where magick"
+          }
+        },
+        {
+          "id": "yt-dlp",
+          "name": "yt-dlp",
+          "description": "Video downloader (YouTube, etc.)",
+          "install": {
+            "linux": "sudo apt install -y yt-dlp || sudo pip install yt-dlp",
+            "darwin": "brew install yt-dlp",
+            "win32": "winget install yt-dlp.yt-dlp --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v yt-dlp",
+            "darwin": "command -v yt-dlp",
+            "win32": "where yt-dlp"
+          }
+        },
+        {
+          "id": "blender",
+          "name": "Blender",
+          "description": "3D creation suite",
+          "install": {
+            "linux": "sudo snap install blender --classic",
+            "darwin": "brew install --cask blender",
+            "win32": "winget install BlenderFoundation.Blender --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v blender || snap list blender",
+            "darwin": "ls /Applications/ | grep -i blender",
+            "win32": "where blender"
+          }
+        },
+        {
+          "id": "gimp",
+          "name": "GIMP",
+          "description": "GNU Image Manipulation Program",
+          "install": {
+            "linux": "sudo apt install -y gimp || sudo snap install gimp --classic",
+            "darwin": "brew install --cask gimp",
+            "win32": "winget install GIMP.GIMP --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v gimp",
+            "darwin": "ls /Applications/ | grep -i gimp",
+            "win32": "where gimp"
+          }
+        },
+        {
+          "id": "inkscape",
+          "name": "Inkscape",
+          "description": "Vector graphics editor (SVG)",
+          "install": {
+            "linux": "sudo apt install -y inkscape || sudo snap install inkscape --classic",
+            "darwin": "brew install --cask inkscape",
+            "win32": "winget install Inkscape.Inkscape --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v inkscape",
+            "darwin": "ls /Applications/ | grep -i inkscape",
+            "win32": "where inkscape"
+          }
+        }
+      ]
+    },
+    {
+      "id": "security",
+      "name": "Security",
+      "packages": [
+        {
+          "id": "gpg",
+          "name": "GPG",
+          "description": "GNU Privacy Guard (encryption)",
+          "install": {
+            "linux": "sudo apt install -y gnupg",
+            "darwin": "brew install gnupg",
+            "win32": "winget install GnuPG.GnuPG --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v gpg",
+            "darwin": "command -v gpg",
+            "win32": "where gpg"
+          }
+        },
+        {
+          "id": "pass",
+          "name": "pass",
+          "description": "Standard Unix password manager",
+          "install": {
+            "linux": "sudo apt install -y pass",
+            "darwin": "brew install pass",
+            "win32": "winget install PasswordStore.pass --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v pass",
+            "darwin": "command -v pass",
+            "win32": "where pass"
+          }
+        },
+        {
+          "id": "age",
+          "name": "age",
+          "description": "Modern file encryption (simple, secure)",
+          "install": {
+            "linux": "sudo apt install -y age || cargo install age",
+            "darwin": "brew install age",
+            "win32": "winget install FiloSottile.age --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v age",
+            "darwin": "command -v age",
+            "win32": "where age"
+          }
+        },
+        {
+          "id": "sops",
+          "name": "SOPS",
+          "description": "Secrets management (Mozilla)",
+          "install": {
+            "linux": "sudo apt install -y sops || (wget -qO /tmp/sops https://github.com/getsops/sops/releases/latest/download/sops-*-linux.amd64.tar.gz && sudo tar xzf /tmp/sops -C /usr/local/bin/)",
+            "darwin": "brew install sops",
+            "win32": "winget install Mozilla.SOPS --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v sops",
+            "darwin": "command -v sops",
+            "win32": "where sops"
+          }
+        },
+        {
+          "id": "vault",
+          "name": "HashiCorp Vault",
+          "description": "Secrets management & encryption as a service",
+          "install": {
+            "linux": "wget -O- https://releases.hashicorp.com/vault/latest/vault_linux_amd64.zip | sudo tee /tmp/vault.zip > /dev/null && sudo unzip -o /tmp/vault.zip -d /usr/local/bin/ && rm /tmp/vault.zip",
+            "darwin": "brew install vault",
+            "win32": "winget install HashiCorp.Vault --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v vault",
+            "darwin": "command -v vault",
+            "win32": "where vault"
+          }
+        },
+        {
+          "id": "trivy",
+          "name": "Trivy",
+          "description": "Vulnerability scanner for containers & code",
+          "install": {
+            "linux": "sudo apt install -y trivy || curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin",
+            "darwin": "brew install trivy",
+            "win32": "winget install AquaSec.Trivy --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v trivy",
+            "darwin": "command -v trivy",
+            "win32": "where trivy"
+          }
+        }
+      ]
+    },
+    {
+      "id": "git",
+      "name": "Git Tools",
+      "packages": [
+        {
+          "id": "git_crypt",
+          "name": "git-crypt",
+          "description": "Transparent file encryption in git",
+          "install": {
+            "linux": "sudo apt install -y git-crypt",
+            "darwin": "brew install git-crypt",
+            "win32": "winget install AGWA.git-crypt --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v git-crypt",
+            "darwin": "command -v git-crypt",
+            "win32": "where git-crypt"
+          }
+        },
+        {
+          "id": "gh",
+          "name": "GitHub CLI",
+          "description": "GitHub official CLI tool (gh)",
+          "install": {
+            "linux": "curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg && echo \"deb [ arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg ] https://cli.github.com/packages stable main\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null && sudo apt update && sudo apt install -y gh",
+            "darwin": "brew install gh",
+            "win32": "winget install GitHub.cli --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v gh",
+            "darwin": "command -v gh",
+            "win32": "where gh"
+          }
+        },
+        {
+          "id": "gitui",
+          "name": "gitui",
+          "description": "Fast terminal UI for git",
+          "install": {
+            "linux": "cargo install gitui",
+            "darwin": "brew install gitui",
+            "win32": "winget install extrawurst.gitui --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v gitui",
+            "darwin": "command -v gitui",
+            "win32": "where gitui"
+          }
+        },
+        {
+          "id": "gitoxide",
+          "name": "gitoxide",
+          "description": "Ansi git implementation in Rust (fast)",
+          "install": {
+            "linux": "cargo install --locked gitoxide",
+            "darwin": "cargo install --locked gitoxide"
+          },
+          "check": {
+            "linux": "command -v gix",
+            "darwin": "command -v gix"
+          }
+        },
+        {
+          "id": "act",
+          "name": "act",
+          "description": "Run GitHub Actions locally",
+          "install": {
+            "linux": "curl -sS https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash",
+            "darwin": "brew install act",
+            "win32": "winget install nektos.act --accept-source-agreements --accept-package-agreements"
+          },
+          "check": {
+            "linux": "command -v act",
+            "darwin": "command -v act",
+            "win32": "where act"
           }
         }
       ]

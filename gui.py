@@ -309,7 +309,7 @@ class PackageCard(QFrame):
         layout.setSpacing(12)
 
         self.checkbox = QCheckBox()
-        self.checkbox.setChecked(True)
+        self.checkbox.setChecked(False)
         self.checkbox.setFixedSize(20, 20)
         layout.addWidget(self.checkbox, 0, Qt.AlignmentFlag.AlignVCenter)
 
@@ -1053,7 +1053,7 @@ class MainWindow(QMainWindow):
             for pkg in packages:
                 installed = self.installer.is_installed(pkg["id"])
                 card = PackageCard(pkg, installed)
-                card.checkbox.setChecked(True)
+                card.checkbox.setChecked(False)
                 self.cards[pkg["id"]] = card
                 cat_layout.addWidget(card)
 
